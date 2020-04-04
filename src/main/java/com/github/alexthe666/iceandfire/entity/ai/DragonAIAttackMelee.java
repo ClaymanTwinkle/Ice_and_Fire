@@ -1,6 +1,7 @@
 package com.github.alexthe666.iceandfire.entity.ai;
 
 import com.github.alexthe666.iceandfire.entity.EntityDragonBase;
+import com.github.alexthe666.iceandfire.entity.IaFDragonAttacks;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -9,8 +10,11 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 
 public class DragonAIAttackMelee extends EntityAIBase {
+    private static final int WAITING_NO_ATTACK_WHEN_CHAINED_TICK = 100;
+
     protected EntityDragonBase dragon;
     private int attackTick;
+    private int noAttackWhenChainedTick = WAITING_NO_ATTACK_WHEN_CHAINED_TICK;
     private double speedTowardsTarget;
     private boolean longMemory;
     private Path entityPathEntity;
@@ -76,6 +80,7 @@ public class DragonAIAttackMelee extends EntityAIBase {
             this.dragon.setAttackTarget(null);
         }
         this.dragon.getNavigator().clearPath();
+        noAttackWhenChainedTick = WAITING_NO_ATTACK_WHEN_CHAINED_TICK;
     }
 
     @Override
@@ -125,8 +130,16 @@ public class DragonAIAttackMelee extends EntityAIBase {
 
             if (d0 <= d1 && this.attackTick <= 0) {
                 this.attackTick = 20;
+                noAttackWhenChainedTick = WAITING_NO_ATTACK_WHEN_CHAINED_TICK;
                 this.dragon.swingArm(EnumHand.MAIN_HAND);
                 this.dragon.attackEntityAsMob(entity);
+            } else if (dragon.isChained() && !dragon.isPlayingAttackAnimation() && !dragon.isBreathingFire()) {
+                if(noAttackWhenChainedTick<=0) {
+                    noAttackWhenChainedTick = WAITING_NO_ATTACK_WHEN_CHAINED_TICK;
+                    dragon.usingGroundAttack = dragon.getRNG().nextBoolean();
+                    dragon.groundAttack = IaFDragonAttacks.Ground.FIRE;
+                }
+                --noAttackWhenChainedTick;
             }
         }
     }

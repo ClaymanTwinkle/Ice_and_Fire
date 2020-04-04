@@ -2115,7 +2115,7 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
         return SoundEvents.BLOCK_FIRE_EXTINGUISH;
     }
 
-    protected boolean isPlayingAttackAnimation(){
+    public boolean isPlayingAttackAnimation(){
         return this.getAnimation() == ANIMATION_BITE || this.getAnimation() == ANIMATION_SHAKEPREY || this.getAnimation() == ANIMATION_WINGBLAST ||
                 this.getAnimation() == ANIMATION_TAILWHACK;
     }
