@@ -1,7 +1,7 @@
 package com.github.alexthe666.iceandfire.entity.ai;
 
 import com.github.alexthe666.iceandfire.entity.EntityDragonBase;
-import com.github.alexthe666.iceandfire.entity.IaFDragonAttacks;
+import com.github.alexthe666.iceandfire.entity.IafDragonAttacks;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -137,7 +137,7 @@ public class DragonAIAttackMelee extends EntityAIBase {
                 if(noAttackWhenChainedTick<=0) {
                     noAttackWhenChainedTick = WAITING_NO_ATTACK_WHEN_CHAINED_TICK;
                     dragon.usingGroundAttack = dragon.getRNG().nextBoolean();
-                    dragon.groundAttack = IaFDragonAttacks.Ground.FIRE;
+                    dragon.groundAttack = IafDragonAttacks.Ground.FIRE;
                 }
                 --noAttackWhenChainedTick;
             }
