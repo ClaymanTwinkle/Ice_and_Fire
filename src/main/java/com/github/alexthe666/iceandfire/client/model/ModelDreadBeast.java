@@ -211,6 +211,14 @@ public class ModelDreadBeast extends ModelDragonBase {
         this.rotate(animator, Jaw, 10, 0, 0);
         animator.endKeyframe();
         animator.resetKeyframe(5);
+        animator.setAnimation(EntityDreadBeast.ANIMATION_SPAWN);
+        animator.startKeyframe(0);
+        animator.move(this.Body, 0, 35, 0);
+        animator.endKeyframe();
+        animator.startKeyframe(30);
+        animator.move(this.Body, 0, 0, 0);
+        animator.endKeyframe();
+        animator.resetKeyframe(5);
     }
 
     public void setRotationAngles(float f, float f1, float f2, float f3, float f4, float f5, EntityDreadBeast beast) {
@@ -240,6 +248,11 @@ public class ModelDreadBeast extends ModelDragonBase {
         this.walk(LegL1, speed_walk, degree_walk * -0.75F, false, 0, 0F, f, f1);
         this.walk(LegR2, speed_walk, degree_walk * -0.5F, false, -1, 0.3F, f, f1);
         this.walk(LegL2, speed_walk, degree_walk * -0.5F, false, -1, 0.3F, f, f1);
+        float f12 = -0.9560913642424937F + f1;
+        if (f12 > Math.toRadians(-20)) {
+            f12 = (float) Math.toRadians(-20);
+        }
+        this.Tail.rotateAngleX = f12;
     }
 
     @Override

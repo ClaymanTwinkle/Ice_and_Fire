@@ -1,7 +1,7 @@
 package com.github.alexthe666.iceandfire.entity;
 
 import com.github.alexthe666.iceandfire.IceAndFire;
-import com.github.alexthe666.iceandfire.core.ModBlocks;
+import com.github.alexthe666.iceandfire.block.IafBlockRegistry;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import net.minecraft.block.Block;
@@ -15,6 +15,7 @@ import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.monster.EntityGolem;
 import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.math.*;
 import net.minecraft.world.EnumDifficulty;
@@ -269,17 +270,17 @@ public class DragonUtils {
     }
 
     public static boolean canDragonBreak(Block block) {
-        return block != net.minecraft.init.Blocks.BARRIER &&
-                block != net.minecraft.init.Blocks.OBSIDIAN &&
-                block != net.minecraft.init.Blocks.END_STONE &&
-                block != net.minecraft.init.Blocks.BEDROCK &&
-                block != net.minecraft.init.Blocks.END_PORTAL &&
-                block != net.minecraft.init.Blocks.END_PORTAL_FRAME &&
-                block != net.minecraft.init.Blocks.COMMAND_BLOCK &&
-                block != net.minecraft.init.Blocks.REPEATING_COMMAND_BLOCK &&
-                block != net.minecraft.init.Blocks.CHAIN_COMMAND_BLOCK &&
-                block != net.minecraft.init.Blocks.IRON_BARS &&
-                block != net.minecraft.init.Blocks.END_GATEWAY &&
+        return block != Blocks.BARRIER &&
+                block != Blocks.OBSIDIAN &&
+                block != Blocks.END_STONE &&
+                block != Blocks.BEDROCK &&
+                block != Blocks.END_PORTAL &&
+                block != Blocks.END_PORTAL_FRAME &&
+                block != Blocks.COMMAND_BLOCK &&
+                block != Blocks.REPEATING_COMMAND_BLOCK &&
+                block != Blocks.CHAIN_COMMAND_BLOCK &&
+                block != Blocks.IRON_BARS &&
+                block != Blocks.END_GATEWAY &&
                 !isBlacklistedBlock(block);
     }
 
@@ -292,7 +293,7 @@ public class DragonUtils {
     }
 
     public static boolean isAlive(EntityLivingBase entity) {
-        return !(entity instanceof IDeadMob) || !((IDeadMob) entity).isMobDead();
+        return (!(entity instanceof IDeadMob) || !((IDeadMob) entity).isMobDead()) && !EntityGorgon.isStoneMob(entity);
     }
 
 
@@ -370,11 +371,11 @@ public class DragonUtils {
 
     public static boolean isDreadBlock(IBlockState state){
         Block block = state.getBlock();
-        return block == ModBlocks.dread_stone || block == ModBlocks.dread_stone_bricks || block == ModBlocks.dread_stone_bricks_chiseled ||
-                block == ModBlocks.dread_stone_bricks_cracked || block == ModBlocks.dread_stone_bricks_mossy || block == ModBlocks.dread_stone_tile ||
-                block == ModBlocks.dread_stone_face || block == ModBlocks.dread_torch || block == ModBlocks.dread_stone_bricks_stairs ||
-                block == ModBlocks.dread_stone_bricks_double_slab || block == ModBlocks.dread_stone_bricks_slab || block == ModBlocks.dreadwood_log ||
-                block == ModBlocks.dreadwood_planks || block == ModBlocks.dreadwood_planks_lock || block == ModBlocks.dread_portal ||
-                block == ModBlocks.dread_spawner;
+        return block == IafBlockRegistry.dread_stone || block == IafBlockRegistry.dread_stone_bricks || block == IafBlockRegistry.dread_stone_bricks_chiseled ||
+                block == IafBlockRegistry.dread_stone_bricks_cracked || block == IafBlockRegistry.dread_stone_bricks_mossy || block == IafBlockRegistry.dread_stone_tile ||
+                block == IafBlockRegistry.dread_stone_face || block == IafBlockRegistry.dread_torch || block == IafBlockRegistry.dread_stone_bricks_stairs ||
+                block == IafBlockRegistry.dread_stone_bricks_double_slab || block == IafBlockRegistry.dread_stone_bricks_slab || block == IafBlockRegistry.dreadwood_log ||
+                block == IafBlockRegistry.dreadwood_planks || block == IafBlockRegistry.dreadwood_planks_lock || block == IafBlockRegistry.dread_portal ||
+                block == IafBlockRegistry.dread_spawner;
     }
 }

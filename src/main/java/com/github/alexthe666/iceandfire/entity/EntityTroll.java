@@ -1,7 +1,8 @@
 package com.github.alexthe666.iceandfire.entity;
 
 import com.github.alexthe666.iceandfire.IceAndFire;
-import com.github.alexthe666.iceandfire.core.ModSounds;
+import com.github.alexthe666.iceandfire.api.event.GenericGriefEvent;
+import com.github.alexthe666.iceandfire.misc.IafSoundRegistry;
 import com.github.alexthe666.iceandfire.entity.ai.TrollAIFleeSun;
 import com.github.alexthe666.iceandfire.enums.EnumTroll;
 import net.ilexiconn.llibrary.server.animation.Animation;
@@ -40,10 +41,11 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.loot.LootTableList;
+import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nullable;
 
-public class EntityTroll extends EntityMob implements IAnimatedEntity, IVillagerFear {
+public class EntityTroll extends EntityMob implements IAnimatedEntity, IVillagerFear, IHumanoid {
 
     public static final Animation ANIMATION_STRIKE_HORIZONTAL = Animation.create(20);
     public static final Animation ANIMATION_STRIKE_VERTICAL = Animation.create(20);
@@ -83,7 +85,7 @@ public class EntityTroll extends EntityMob implements IAnimatedEntity, IVillager
 
     public boolean getCanSpawnHere() {
         BlockPos pos = new BlockPos(this);
-        return this.getRNG().nextInt(IceAndFire.CONFIG.trollSpawnCheckChance) == 0 && !this.world.canSeeSky(pos) && pos.getY() <= 50 && !isEntityInsideOpaqueBlock() && super.getCanSpawnHere();
+        return this.getRNG().nextInt(IceAndFire.CONFIG.trollSpawnCheckChance) == 0 && !this.world.canSeeSky(pos.up()) && super.getCanSpawnHere();
     }
 
     protected void initEntityAI() {
@@ -285,7 +287,7 @@ public class EntityTroll extends EntityMob implements IAnimatedEntity, IVillager
             this.setAnimation(ANIMATION_ROAR);
         }
         if (this.getAnimation() == ANIMATION_ROAR && this.getAnimationTick() == 5) {
-            this.playSound(ModSounds.TROLL_ROAR, 1, 1);
+            this.playSound(IafSoundRegistry.TROLL_ROAR, 1, 1);
         }
         if (!stone && this.getHealth() < this.getMaxHealth() && this.ticksExisted % 30 == 0) {
             this.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 30, 1, false, false));
@@ -302,7 +304,7 @@ public class EntityTroll extends EntityMob implements IAnimatedEntity, IVillager
                     this.motionY = 0;
                     this.motionZ = 0;
                     this.setAnimation(NO_ANIMATION);
-                    this.playSound(ModSounds.GORGON_TURN_STONE, 1, 1);
+                    this.playSound(IafSoundRegistry.GORGON_TURN_STONE, 1, 1);
                 }
             }
         }
@@ -356,8 +358,11 @@ public class EntityTroll extends EntityMob implements IAnimatedEntity, IVillager
                 float weaponY = (float) (posY + (this.getEyeHeight() / 2));
                 IBlockState state = world.getBlockState(new BlockPos(weaponX, weaponY, weaponZ));
                 BlockBreakExplosion explosion = new BlockBreakExplosion(world, this, weaponX, weaponY, weaponZ, 1F + this.getRNG().nextFloat());
-                explosion.doExplosionA();
-                explosion.doExplosionB(true);
+                if (!MinecraftForge.EVENT_BUS.post(new GenericGriefEvent(this, weaponX, weaponY, weaponZ))){
+                    explosion.doExplosionA();
+                    explosion.doExplosionB(true);
+                }
+
                 this.playSound(SoundEvents.ENTITY_GENERIC_EXPLODE, 1, 1);
 
             }
@@ -408,17 +413,17 @@ public class EntityTroll extends EntityMob implements IAnimatedEntity, IVillager
 
     @Nullable
     protected SoundEvent getAmbientSound() {
-        return ModSounds.TROLL_IDLE;
+        return IafSoundRegistry.TROLL_IDLE;
     }
 
     @Nullable
     protected SoundEvent getHurtSound(DamageSource source) {
-        return ModSounds.TROLL_HURT;
+        return IafSoundRegistry.TROLL_HURT;
     }
 
     @Nullable
     protected SoundEvent getDeathSound() {
-        return ModSounds.TROLL_DIE;
+        return IafSoundRegistry.TROLL_DIE;
     }
 
 

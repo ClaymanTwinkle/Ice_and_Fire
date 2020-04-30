@@ -1,11 +1,13 @@
 package com.github.alexthe666.iceandfire.block;
 
 import com.github.alexthe666.iceandfire.IceAndFire;
-import com.github.alexthe666.iceandfire.core.ModBlocks;
+import com.github.alexthe666.iceandfire.entity.DragonUtils;
+import com.github.alexthe666.iceandfire.entity.EntityDreadMob;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.Item;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -56,17 +58,17 @@ public class BlockGeneric extends Block {
 
     @SideOnly(Side.CLIENT)
     public BlockRenderLayer getRenderLayer() {
-        return this == ModBlocks.dragon_ice ? BlockRenderLayer.TRANSLUCENT : super.getRenderLayer();
+        return this == IafBlockRegistry.dragon_ice ? BlockRenderLayer.TRANSLUCENT : super.getRenderLayer();
     }
 
     @SuppressWarnings("deprecation")
     public boolean isOpaqueCube(IBlockState state) {
-        return this != ModBlocks.dragon_ice;
+        return this != IafBlockRegistry.dragon_ice;
     }
 
     @SuppressWarnings("deprecation")
     public boolean isFullCube(IBlockState state) {
-        return this != ModBlocks.dragon_ice;
+        return this != IafBlockRegistry.dragon_ice;
     }
 
     @SuppressWarnings("deprecation")
@@ -74,7 +76,7 @@ public class BlockGeneric extends Block {
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
         IBlockState iblockstate = blockAccess.getBlockState(pos.offset(side));
         Block block = iblockstate.getBlock();
-        if (this == ModBlocks.dragon_ice) {
+        if (this == IafBlockRegistry.dragon_ice) {
             if (blockState != iblockstate) {
                 return true;
             }
@@ -87,11 +89,17 @@ public class BlockGeneric extends Block {
         return block == this && super.shouldSideBeRendered(blockState, blockAccess, pos, side);
     }
 
+    @Deprecated
+    public boolean canEntitySpawn(IBlockState state, Entity entityIn) {
+        return entityIn instanceof EntityDreadMob || !DragonUtils.isDreadBlock(state);
+    }
+
+
     public boolean isBeaconBase(IBlockAccess worldObj, BlockPos pos, BlockPos beacon) {
-        return this == ModBlocks.silverBlock || this == ModBlocks.sapphireBlock;
+        return this == IafBlockRegistry.silverBlock || this == IafBlockRegistry.sapphireBlock;
     }
 
     public boolean isFireSource(World world, BlockPos pos, EnumFacing side) {
-        return this == ModBlocks.dragonforge_fire_brick;
+        return this == IafBlockRegistry.dragonforge_fire_brick;
     }
 }

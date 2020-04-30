@@ -4,12 +4,12 @@ import com.github.alexthe666.iceandfire.compat.CraftTweakerCompatBridge;
 import com.github.alexthe666.iceandfire.compat.OneProbeCompatBridge;
 import com.github.alexthe666.iceandfire.compat.ThaumcraftCompatBridge;
 import com.github.alexthe666.iceandfire.compat.TinkersCompatBridge;
-import com.github.alexthe666.iceandfire.core.ModEntities;
-import com.github.alexthe666.iceandfire.core.ModRecipes;
-import com.github.alexthe666.iceandfire.core.ModVillagers;
-import com.github.alexthe666.iceandfire.core.ModWorld;
-import com.github.alexthe666.iceandfire.event.EventServer;
-import com.github.alexthe666.iceandfire.event.StructureGenerator;
+import com.github.alexthe666.iceandfire.entity.IafEntityRegistry;
+import com.github.alexthe666.iceandfire.recipe.IafRecipeRegistry;
+import com.github.alexthe666.iceandfire.entity.IafVillagerRegistry;
+import com.github.alexthe666.iceandfire.world.IafWorldRegistry;
+import com.github.alexthe666.iceandfire.event.ServerEvents;
+import com.github.alexthe666.iceandfire.event.WorldGenEvents;
 import com.github.alexthe666.iceandfire.loot.CustomizeToDragon;
 import com.github.alexthe666.iceandfire.loot.CustomizeToSeaSerpent;
 import com.github.alexthe666.iceandfire.message.*;
@@ -24,7 +24,6 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraft.world.storage.loot.functions.LootFunctionManager;
 import net.minecraftforge.common.MinecraftForge;
@@ -53,7 +52,7 @@ import java.util.Random;
 public class IceAndFire {
 
     public static final String MODID = "iceandfire";
-    public static final String VERSION = "1.8.4";
+    public static final String VERSION = "1.9.1";
     public static final String LLIBRARY_VERSION = "1.7.9";
     public static final String NAME = "Ice And Fire";
     public static final Logger logger = LogManager.getLogger(NAME);
@@ -100,11 +99,11 @@ public class IceAndFire {
     public void preInit(FMLPreInitializationEvent event) {
         loadConfig();
         syncConfig();
-        MinecraftForge.EVENT_BUS.register(new EventServer());
+        MinecraftForge.EVENT_BUS.register(new ServerEvents());
         TAB_ITEMS = new CreativeTab(MODID + "_items");
         TAB_BLOCKS = new CreativeTab(MODID + "_blocks");
-        ModEntities.init();
-        ModWorld.init();
+        IafEntityRegistry.init();
+        IafWorldRegistry.init();
         MinecraftForge.EVENT_BUS.register(PROXY);
         logger.info("A raven flies from the north to the sea");
         logger.info("A dragon whispers her name in the east");
@@ -119,14 +118,14 @@ public class IceAndFire {
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
-        ModVillagers.INSTANCE.init();
+        IafVillagerRegistry.INSTANCE.init();
         logger.info("The watcher waits on the northern wall");
         logger.info("A daughter picks up a warrior's sword");
         MapGenStructureIO.registerStructure(MapGenSnowVillage.Start.class, "SnowVillageStart");
         MapGenStructureIO.registerStructureComponent(ComponentAnimalFarm.class, "AnimalFarm");
         VillagerRegistry.instance().registerVillageCreationHandler(new VillageAnimalFarmCreator());
         PROXY.render();
-        GameRegistry.registerWorldGenerator(new StructureGenerator(), 0);
+        GameRegistry.registerWorldGenerator(new WorldGenEvents(), 0);
         NetworkRegistry.INSTANCE.registerGuiHandler(this, new com.github.alexthe666.iceandfire.client.GuiHandler());
         dragon = new DamageSource("dragon") {
             @Override
@@ -166,7 +165,7 @@ public class IceAndFire {
     public void postInit(FMLPostInitializationEvent event) {
         PROXY.postRender();
         TinkersCompatBridge.loadTinkersPostInitCompat();
-        ModRecipes.postInit();
+        IafRecipeRegistry.postInit();
         logger.info("A brother bound to a love he must hide");
         logger.info("The younger's armor is worn in the mind");
         logger.info("A cold iron throne holds a boy barely grown");

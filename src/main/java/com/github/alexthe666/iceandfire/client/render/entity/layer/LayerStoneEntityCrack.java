@@ -15,6 +15,7 @@ import net.minecraft.entity.monster.EntityGuardian;
 import net.minecraft.entity.passive.AbstractHorse;
 import net.minecraft.entity.passive.EntityLlama;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.opengl.GL11;
 
 public class LayerStoneEntityCrack implements LayerRenderer {
 
@@ -32,10 +33,21 @@ public class LayerStoneEntityCrack implements LayerRenderer {
         if (entitylivingbaseIn instanceof EntityLiving) {
             StoneEntityProperties properties = EntityPropertiesHandler.INSTANCE.getProperties(entitylivingbaseIn, StoneEntityProperties.class);
             if (properties != null && properties.isStone && properties.breakLvl > 0) {
-                GlStateManager.enableNormalize();
+                float x = Math.max(this.renderer.getMainModel().textureWidth, 1) / 16F; //default to 4
+                float y = Math.max(this.renderer.getMainModel().textureHeight, 1) / 16F; //default to 2
+
                 GlStateManager.enableBlend();
+                GlStateManager.enableCull();
+                GlStateManager.disableAlpha();
                 GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+                GlStateManager.depthMask(true);
+
                 this.renderer.bindTexture(DESTROY_STAGES[properties.breakLvl - 1]);
+                GlStateManager.matrixMode(5890);
+                GlStateManager.loadIdentity();
+                GlStateManager.scale(x, y, 1);
+                GlStateManager.matrixMode(5888);
+
                 if (this.renderer.getMainModel() instanceof ModelTroll) {
                     this.renderer.getMainModel().render(entitylivingbaseIn, f, 0, 0, f3, f4, f5);
                 } else if (this.renderer.getMainModel() instanceof ICustomStatueModel) {
@@ -48,15 +60,19 @@ public class LayerStoneEntityCrack implements LayerRenderer {
                     this.renderer.getMainModel().render(entitylivingbaseIn, f, 0, 0, f3, f4, f5);
                 }
                 GlStateManager.disableBlend();
-                GlStateManager.disableNormalize();
+                GlStateManager.matrixMode(5890);
+                GlStateManager.loadIdentity();
+                GlStateManager.matrixMode(5888);
 
+                GlStateManager.disableBlend();
+                GlStateManager.disableCull();
+                GlStateManager.enableAlpha();
             }
         }
     }
 
-
     @Override
     public boolean shouldCombineTextures() {
-        return true;
+        return false;
     }
 }

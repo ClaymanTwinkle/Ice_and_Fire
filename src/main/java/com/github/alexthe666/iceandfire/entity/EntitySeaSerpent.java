@@ -2,13 +2,12 @@ package com.github.alexthe666.iceandfire.entity;
 
 import com.github.alexthe666.iceandfire.IceAndFire;
 import com.github.alexthe666.iceandfire.client.model.IFChainBuffer;
-import com.github.alexthe666.iceandfire.core.ModSounds;
+import com.github.alexthe666.iceandfire.misc.IafSoundRegistry;
 import com.github.alexthe666.iceandfire.entity.ai.EntityAIWatchClosestIgnoreRider;
 import com.github.alexthe666.iceandfire.entity.ai.FlyingAITarget;
 import com.github.alexthe666.iceandfire.entity.ai.SeaSerpentAIAttackMelee;
 import com.github.alexthe666.iceandfire.entity.ai.SeaSerpentAIGetInWater;
 import com.github.alexthe666.iceandfire.enums.EnumSeaSerpent;
-import com.github.alexthe666.iceandfire.pathfinding.PathNavigateAmphibious;
 import com.google.common.base.Predicate;
 import net.ilexiconn.llibrary.server.animation.Animation;
 import net.ilexiconn.llibrary.server.animation.AnimationHandler;
@@ -422,6 +421,7 @@ public class EntitySeaSerpent extends EntityAnimal implements IAnimatedEntity, I
     }
 
     public void onLivingUpdate() {
+        super.onLivingUpdate();
         if (!world.isRemote) {
             if (isJumpingOutOfWater() && swimBehavior == SwimBehavior.WANDER && shouldStopJumping()) {
                 motionY -= 0.25D;
@@ -434,7 +434,6 @@ public class EntitySeaSerpent extends EntityAnimal implements IAnimatedEntity, I
                 this.setAttackTarget(null);
             }
         }
-        super.onLivingUpdate();
         boolean breathing = isBreathing() && this.getAnimation() != ANIMATION_BITE && this.getAnimation() != ANIMATION_ROAR;
         boolean jumping = !this.isInWater() && !this.onGround && this.motionY >= 0;
         boolean wantJumping = false; //(ticksSinceJump > TIME_BETWEEN_JUMPS) && this.isInWater();
@@ -447,10 +446,10 @@ public class EntitySeaSerpent extends EntityAnimal implements IAnimatedEntity, I
             this.ticksSinceRoar = 0;
         }
         if (this.getAnimation() == ANIMATION_ROAR && this.getAnimationTick() == 1) {
-            this.playSound(ModSounds.SEA_SERPENT_ROAR, this.getSoundVolume() + 1, 1);
+            this.playSound(IafSoundRegistry.SEA_SERPENT_ROAR, this.getSoundVolume() + 1, 1);
         }
         if (this.getAnimation() == ANIMATION_BITE && this.getAnimationTick() == 5) {
-            this.playSound(ModSounds.SEA_SERPENT_BITE, this.getSoundVolume(), 1);
+            this.playSound(IafSoundRegistry.SEA_SERPENT_BITE, this.getSoundVolume(), 1);
         }
         if (isJumpingOutOfWater()) {
             ticksJumping++;
@@ -490,7 +489,7 @@ public class EntitySeaSerpent extends EntityAnimal implements IAnimatedEntity, I
             jumpRot -= 0.1F;
         }
         if (prevJumping != this.isJumpingOutOfWater() && !this.isJumpingOutOfWater()) {
-            this.playSound(ModSounds.SEA_SERPENT_SPLASH, 5F, 0.75F);
+            this.playSound(IafSoundRegistry.SEA_SERPENT_SPLASH, 5F, 0.75F);
             spawnSlamParticles(EnumParticleTypes.FIREWORKS_SPARK);
             spawnSlamParticles(EnumParticleTypes.WATER_BUBBLE);
             spawnSlamParticles(EnumParticleTypes.WATER_BUBBLE);
@@ -504,7 +503,7 @@ public class EntitySeaSerpent extends EntityAnimal implements IAnimatedEntity, I
             switchNavigator(true);
         }
         renderYawOffset = rotationYaw;
-        rotationPitch = (float) motionY * 20F;
+        rotationPitch = MathHelper.clamp((float) motionY * 20F, -90, 90);
         if (world.isRemote) {
             pitch_buffer.calculateChainWaveBuffer(90, 10, 10F, 0.5F, this);
 
@@ -692,12 +691,12 @@ public class EntitySeaSerpent extends EntityAnimal implements IAnimatedEntity, I
     public void breakBlock() {
         if (IceAndFire.CONFIG.seaSerpentGriefing) {
             for (int a = (int) Math.round(this.getEntityBoundingBox().minX) - 2; a <= (int) Math.round(this.getEntityBoundingBox().maxX) + 2; a++) {
-                for (int b = (int) Math.round(this.getEntityBoundingBox().minY); (b <= (int) Math.round(this.getEntityBoundingBox().maxY) + 2) && (b <= 127); b++) {
+                for (int b = (int) Math.round(this.getEntityBoundingBox().minY) - 1; (b <= (int) Math.round(this.getEntityBoundingBox().maxY) + 2) && (b <= 127); b++) {
                     for (int c = (int) Math.round(this.getEntityBoundingBox().minZ) - 2; c <= (int) Math.round(this.getEntityBoundingBox().maxZ) + 2; c++) {
                         BlockPos pos = new BlockPos(a, b, c);
                         IBlockState state = world.getBlockState(pos);
                         Block block = state.getBlock();
-                        if (state.getMaterial() != Material.AIR && !(block instanceof BlockLiquid) && state.getMaterial() == Material.PLANTS) {
+                        if (state.getMaterial() != Material.AIR && !(block instanceof BlockLiquid) && (state.getMaterial() == Material.PLANTS || state.getMaterial() == Material.LEAVES)) {
                             if (block != Blocks.AIR) {
                                 if (!world.isRemote) {
                                     world.destroyBlock(pos, true);
@@ -771,17 +770,17 @@ public class EntitySeaSerpent extends EntityAnimal implements IAnimatedEntity, I
 
     @Nullable
     protected SoundEvent getAmbientSound() {
-        return ModSounds.SEA_SERPENT_IDLE;
+        return IafSoundRegistry.SEA_SERPENT_IDLE;
     }
 
     @Nullable
     protected SoundEvent getHurtSound(DamageSource source) {
-        return ModSounds.SEA_SERPENT_HURT;
+        return IafSoundRegistry.SEA_SERPENT_HURT;
     }
 
     @Nullable
     protected SoundEvent getDeathSound() {
-        return ModSounds.SEA_SERPENT_DIE;
+        return IafSoundRegistry.SEA_SERPENT_DIE;
     }
 
     public void playLivingSound() {
@@ -832,7 +831,7 @@ public class EntitySeaSerpent extends EntityAnimal implements IAnimatedEntity, I
             }
             if (this.isBreathing()) {
                 if (this.ticksExisted % 40 == 0) {
-                    this.playSound(ModSounds.SEA_SERPENT_BREATH, 4, 1);
+                    this.playSound(IafSoundRegistry.SEA_SERPENT_BREATH, 4, 1);
                 }
                 if (this.ticksExisted % 5 == 0) {
                     rotationYaw = renderYawOffset;

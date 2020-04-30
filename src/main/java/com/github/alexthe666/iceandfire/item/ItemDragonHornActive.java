@@ -2,11 +2,9 @@ package com.github.alexthe666.iceandfire.item;
 
 import com.github.alexthe666.iceandfire.IceAndFire;
 import com.github.alexthe666.iceandfire.client.StatCollector;
-import com.github.alexthe666.iceandfire.core.ModItems;
 import com.github.alexthe666.iceandfire.entity.EntityFireDragon;
 import com.github.alexthe666.iceandfire.entity.EntityIceDragon;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -61,18 +59,6 @@ public class ItemDragonHornActive extends Item {
         itemStack.setTagCompound(new NBTTagCompound());
     }
 
-    @Override
-    public void onUpdate(ItemStack stack, World world, Entity entity, int f, boolean f1) {
-        if (stack.getTagCompound() == null) {
-            stack.setTagCompound(new NBTTagCompound());
-        } else if (stack.getTagCompound().getBoolean("Released")) {
-            stack.shrink(1);
-            if (entity instanceof EntityPlayer) {
-                ((EntityPlayer) entity).inventory.setInventorySlotContents(f, new ItemStack(ModItems.dragon_horn));
-            }
-        }
-    }
-
     public EnumAction getItemUseAction(ItemStack stack) {
         return EnumAction.BOW;
     }
@@ -107,12 +93,12 @@ public class ItemDragonHornActive extends Item {
             } else {
                 BlockPos pos = raytraceresult.getBlockPos();
                 worldIn.playSound(entityplayer, pos, SoundEvents.ENTITY_ZOMBIE_VILLAGER_CONVERTED, SoundCategory.NEUTRAL, 3, 0.75F);
-                if (this == ModItems.dragon_horn_fire) {
+                if (this == IafItemRegistry.dragon_horn_fire) {
                     EntityFireDragon dragon = new EntityFireDragon(worldIn);
-                    dragon.setPosition(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
                     if (stack.getTagCompound() != null) {
-                        dragon.readEntityFromNBT(stack.getTagCompound());
+                        dragon.readFromNBT(stack.getTagCompound());
                     }
+                    dragon.setPosition(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
                     dragon.setFlying(false);
                     dragon.setHovering(false);
                     dragon.getNavigator().clearPath();
@@ -120,8 +106,13 @@ public class ItemDragonHornActive extends Item {
                     if (!worldIn.isRemote) {
                         worldIn.spawnEntity(dragon);
                     }
+                    stack.shrink(1);
+                    ItemStack hornItem = new ItemStack(IafItemRegistry.dragon_horn);
+                    if (!entityplayer.inventory.addItemStackToInventory(hornItem)) {
+                        entityplayer.dropItem(hornItem, false);
+                    }
                 }
-                if (this == ModItems.dragon_horn_ice) {
+                if (this == IafItemRegistry.dragon_horn_ice) {
                     EntityIceDragon dragon = new EntityIceDragon(worldIn);
                     dragon.setPosition(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
                     if (stack.getTagCompound() != null) {
@@ -134,8 +125,12 @@ public class ItemDragonHornActive extends Item {
                     if (!worldIn.isRemote) {
                         worldIn.spawnEntity(dragon);
                     }
+                    stack.shrink(1);
+                    ItemStack hornItem = new ItemStack(IafItemRegistry.dragon_horn);
+                    if (!entityplayer.inventory.addItemStackToInventory(hornItem)) {
+                        entityplayer.dropItem(hornItem, false);
+                    }
                 }
-                stack = new ItemStack(ModItems.dragon_horn);
                 entityplayer.addStat(StatList.getObjectUseStats(this));
             }
         }
@@ -173,7 +168,7 @@ public class ItemDragonHornActive extends Item {
         if (stack.getTagCompound() != null) {
             String fire = new TextComponentTranslation("entity.firedragon.name").getUnformattedText();
             String ice = new TextComponentTranslation("entity.icedragon.name").getUnformattedText();
-            tooltip.add("" + (this == ModItems.dragon_horn_fire ? fire : ice));
+            tooltip.add("" + (this == IafItemRegistry.dragon_horn_fire ? fire : ice));
             String name = stack.getTagCompound().getString("CustomName").isEmpty() ? StatCollector.translateToLocal("dragon.unnamed") : StatCollector.translateToLocal("dragon.name") + stack.getTagCompound().getString("CustomName");
             tooltip.add("" + name);
             String gender = StatCollector.translateToLocal("dragon.gender") + StatCollector.translateToLocal((stack.getTagCompound().getBoolean("Gender") ? "dragon.gender.male" : "dragon.gender.female"));

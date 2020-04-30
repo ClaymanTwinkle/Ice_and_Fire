@@ -2,9 +2,9 @@ package com.github.alexthe666.iceandfire.client.gui;
 
 import com.github.alexthe666.iceandfire.ClientProxy;
 import com.github.alexthe666.iceandfire.IceAndFire;
-import com.github.alexthe666.iceandfire.core.ModItems;
+import com.github.alexthe666.iceandfire.item.IafItemRegistry;
 import com.github.alexthe666.iceandfire.message.MessageGetMyrmexHive;
-import com.github.alexthe666.iceandfire.structures.WorldGenMyrmexHive;
+import com.github.alexthe666.iceandfire.world.gen.WorldGenMyrmexHive;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
@@ -26,7 +26,7 @@ public class GuiMyrmexAddRoom extends GuiScreen {
 
     public GuiMyrmexAddRoom(ItemStack staff, BlockPos interactPos, EnumFacing facing) {
         this.staff = staff;
-        this.jungle = staff.getItem() == ModItems.myrmex_jungle_staff;
+        this.jungle = staff.getItem() == IafItemRegistry.myrmex_jungle_staff;
         this.interactPos = interactPos;
         this.facing = facing;
         initGui();

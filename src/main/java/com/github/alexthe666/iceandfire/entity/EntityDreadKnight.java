@@ -1,9 +1,9 @@
 package com.github.alexthe666.iceandfire.entity;
 
-import com.github.alexthe666.iceandfire.core.ModItems;
+import com.github.alexthe666.iceandfire.item.IafItemRegistry;
 import com.github.alexthe666.iceandfire.entity.ai.DreadAIRideHorse;
 import com.github.alexthe666.iceandfire.entity.ai.DreadAITargetNonDread;
-import com.github.alexthe666.iceandfire.entity.ai.DreadLichAIStrife;
+import com.google.common.base.Predicate;
 import net.ilexiconn.llibrary.server.animation.Animation;
 import net.ilexiconn.llibrary.server.animation.AnimationHandler;
 import net.ilexiconn.llibrary.server.animation.IAnimatedEntity;
@@ -13,9 +13,9 @@ import net.minecraft.entity.ai.*;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumDyeColor;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemBanner;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,18 +23,17 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
+import net.minecraft.world.storage.loot.LootTableList;
 
 import javax.annotation.Nullable;
 
 public class EntityDreadKnight extends EntityDreadMob implements IAnimatedEntity, IVillagerFear, IAnimalFear {
 
+    public static final ResourceLocation LOOT = LootTableList.register(new ResourceLocation("iceandfire", "dread_knight"));
     private static final DataParameter<Integer> VARIANT = EntityDataManager.createKey(EntityDreadThrall.class, DataSerializers.VARINT);
     public static Animation ANIMATION_SPAWN = Animation.create(40);
     private int animationTick;
@@ -65,8 +64,14 @@ public class EntityDreadKnight extends EntityDreadMob implements IAnimatedEntity
         this.tasks.addTask(5, new EntityAIWanderAvoidWater(this, 1.0D));
         this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
         this.tasks.addTask(7, new EntityAILookIdle(this));
-        this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, false));
-        this.targetTasks.addTask(3, new DreadAITargetNonDread(this, EntityLivingBase.class, false));
+        this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, true, new Class[] {IDreadMob.class}));
+        this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityPlayer.class, true));
+        this.targetTasks.addTask(3, new DreadAITargetNonDread(this, EntityLivingBase.class, false, new Predicate<Entity>() {
+            @Override
+            public boolean apply(@Nullable Entity entity) {
+                return entity instanceof EntityLivingBase && DragonUtils.canHostilesTarget(entity);
+            }
+        }));
     }
 
     protected void applyEntityAttributes() {
@@ -99,7 +104,7 @@ public class EntityDreadKnight extends EntityDreadMob implements IAnimatedEntity
 
     protected void setEquipmentBasedOnDifficulty(DifficultyInstance difficulty) {
         super.setEquipmentBasedOnDifficulty(difficulty);
-        this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ModItems.dread_knight_sword));
+        this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(IafItemRegistry.dread_knight_sword));
         if(rand.nextBoolean()){
             this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, SHIELD.copy());
         }
@@ -170,5 +175,33 @@ public class EntityDreadKnight extends EntityDreadMob implements IAnimatedEntity
 
     public double getYOffset() {
         return -0.6D;
+    }
+
+    @Nullable
+    protected ResourceLocation getLootTable() {
+        return LOOT;
+    }
+
+    @Nullable
+    protected SoundEvent getAmbientSound() {
+        return SoundEvents.ENTITY_STRAY_AMBIENT;
+    }
+
+    @Nullable
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return SoundEvents.ENTITY_STRAY_HURT;
+    }
+
+    @Nullable
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.ENTITY_STRAY_DEATH;
+    }
+
+    protected void playStepSound(BlockPos pos, Block blockIn) {
+        this.playSound(SoundEvents.ENTITY_STRAY_STEP, 0.15F, 1.0F);
+    }
+
+    protected float getSoundPitch() {
+        return super.getSoundPitch() * 0.75F;
     }
 }

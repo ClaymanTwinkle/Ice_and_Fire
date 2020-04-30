@@ -1,8 +1,7 @@
 package com.github.alexthe666.iceandfire.entity;
 
 import com.github.alexthe666.iceandfire.IceAndFire;
-import com.github.alexthe666.iceandfire.core.ModItems;
-import com.github.alexthe666.iceandfire.core.ModVillagers;
+import com.github.alexthe666.iceandfire.item.IafItemRegistry;
 import com.github.alexthe666.iceandfire.entity.ai.*;
 import com.github.alexthe666.iceandfire.item.ItemMyrmexEgg;
 import com.google.common.base.Predicate;
@@ -74,7 +73,7 @@ public class EntityMyrmexWorker extends EntityMyrmexBase {
         }
         if (!this.getHeldItem(EnumHand.MAIN_HAND).isEmpty()) {
             if (this.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemMyrmexEgg) {
-                boolean isJungle = this.getHeldItem(EnumHand.MAIN_HAND).getItem() == ModItems.myrmex_jungle_egg;
+                boolean isJungle = this.getHeldItem(EnumHand.MAIN_HAND).getItem() == IafItemRegistry.myrmex_jungle_egg;
                 int metadata = this.getHeldItem(EnumHand.MAIN_HAND).getMetadata();
                 EntityMyrmexEgg egg = new EntityMyrmexEgg(world);
                 egg.copyLocationAndAnglesFrom(this);
@@ -224,7 +223,7 @@ public class EntityMyrmexWorker extends EntityMyrmexBase {
     }
 
     public VillagerRegistry.VillagerProfession getProfessionForge() {
-        return this.isJungle() ? ModVillagers.INSTANCE.jungleMyrmexWorker : ModVillagers.INSTANCE.desertMyrmexWorker;
+        return this.isJungle() ? IafVillagerRegistry.INSTANCE.jungleMyrmexWorker : IafVillagerRegistry.INSTANCE.desertMyrmexWorker;
     }
 
     public Entity getHeldEntity() {
@@ -233,7 +232,7 @@ public class EntityMyrmexWorker extends EntityMyrmexBase {
 
     public void onPickupItem(EntityItem itemEntity) {
         Item item = itemEntity.getItem().getItem();
-        if (item == ModItems.myrmex_jungle_resin && this.isJungle() || item == ModItems.myrmex_desert_resin && !this.isJungle()) {
+        if (item == IafItemRegistry.myrmex_jungle_resin && this.isJungle() || item == IafItemRegistry.myrmex_desert_resin && !this.isJungle()) {
 
             EntityPlayer owner = null;
             try {

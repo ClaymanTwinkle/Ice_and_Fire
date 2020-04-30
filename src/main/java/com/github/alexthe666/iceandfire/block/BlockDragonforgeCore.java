@@ -1,10 +1,10 @@
 package com.github.alexthe666.iceandfire.block;
 
 import com.github.alexthe666.iceandfire.IceAndFire;
-import com.github.alexthe666.iceandfire.core.ModBlocks;
 import com.github.alexthe666.iceandfire.entity.tile.TileEntityDragonforge;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.SoundType;
+import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,7 +13,6 @@ import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -45,25 +44,30 @@ public class BlockDragonforgeCore extends BlockContainer implements IDragonProof
         this.activated = activated;
     }
 
+    @Override
+    public EnumPushReaction getPushReaction(IBlockState state) {
+        return EnumPushReaction.BLOCK;
+    }
+
     public static void setState(boolean fire, boolean active, World worldIn, BlockPos pos) {
         TileEntity tileentity = worldIn.getTileEntity(pos);
         keepInventory = true;
 
         if (active) {
             if (fire) {
-                worldIn.setBlockState(pos, ModBlocks.dragonforge_fire_core.getDefaultState(), 3);
-                worldIn.setBlockState(pos, ModBlocks.dragonforge_fire_core.getDefaultState(), 3);
+                worldIn.setBlockState(pos, IafBlockRegistry.dragonforge_fire_core.getDefaultState(), 3);
+                worldIn.setBlockState(pos, IafBlockRegistry.dragonforge_fire_core.getDefaultState(), 3);
             } else {
-                worldIn.setBlockState(pos, ModBlocks.dragonforge_ice_core.getDefaultState(), 3);
-                worldIn.setBlockState(pos, ModBlocks.dragonforge_ice_core.getDefaultState(), 3);
+                worldIn.setBlockState(pos, IafBlockRegistry.dragonforge_ice_core.getDefaultState(), 3);
+                worldIn.setBlockState(pos, IafBlockRegistry.dragonforge_ice_core.getDefaultState(), 3);
             }
         } else {
             if (fire) {
-                worldIn.setBlockState(pos, ModBlocks.dragonforge_fire_core_disabled.getDefaultState(), 3);
-                worldIn.setBlockState(pos, ModBlocks.dragonforge_fire_core_disabled.getDefaultState(), 3);
+                worldIn.setBlockState(pos, IafBlockRegistry.dragonforge_fire_core_disabled.getDefaultState(), 3);
+                worldIn.setBlockState(pos, IafBlockRegistry.dragonforge_fire_core_disabled.getDefaultState(), 3);
             } else {
-                worldIn.setBlockState(pos, ModBlocks.dragonforge_ice_core_disabled.getDefaultState(), 3);
-                worldIn.setBlockState(pos, ModBlocks.dragonforge_ice_core_disabled.getDefaultState(), 3);
+                worldIn.setBlockState(pos, IafBlockRegistry.dragonforge_ice_core_disabled.getDefaultState(), 3);
+                worldIn.setBlockState(pos, IafBlockRegistry.dragonforge_ice_core_disabled.getDefaultState(), 3);
             }
         }
 
@@ -86,11 +90,11 @@ public class BlockDragonforgeCore extends BlockContainer implements IDragonProof
     }
 
     public Item getItemDropped(IBlockState state, Random rand, int fortune) {
-        return isFire ? Item.getItemFromBlock(ModBlocks.dragonforge_fire_core_disabled) : Item.getItemFromBlock(ModBlocks.dragonforge_ice_core_disabled);
+        return isFire ? Item.getItemFromBlock(IafBlockRegistry.dragonforge_fire_core_disabled) : Item.getItemFromBlock(IafBlockRegistry.dragonforge_ice_core_disabled);
     }
 
     public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state) {
-        return new ItemStack(isFire ? Item.getItemFromBlock(ModBlocks.dragonforge_fire_core_disabled) : Item.getItemFromBlock(ModBlocks.dragonforge_ice_core_disabled));
+        return new ItemStack(isFire ? Item.getItemFromBlock(IafBlockRegistry.dragonforge_fire_core_disabled) : Item.getItemFromBlock(IafBlockRegistry.dragonforge_ice_core_disabled));
     }
 
     public EnumBlockRenderType getRenderType(IBlockState state) {

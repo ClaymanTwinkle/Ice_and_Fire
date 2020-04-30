@@ -62,7 +62,9 @@ public class IceAndFireConfig {
     public int pixieVillageSize = 5;
     public boolean pixiesStealItems = true;
     public boolean generateCyclopsCaves = true;
-    public int spawnCyclopsChance = 170;
+    public boolean generateWanderingCyclops = true;
+    public int spawnWanderingCyclopsChance = 900;
+    public int spawnCyclopsCaveChance = 170;
     public int cyclopesSheepSearchLength = 17;
     public double cyclopsMaxHealth = 150;
     public double cyclopsAttackStrength = 15;
@@ -100,7 +102,7 @@ public class IceAndFireConfig {
     public boolean stympahlianBirdAttackAnimals = false;
     public int stymphalianBirdSpawnChance = 100;
     public boolean spawnTrolls = true;
-    public int trollSpawnRate = 40;
+    public int trollSpawnRate = 60;
     public int trollSpawnCheckChance = 1;
     public boolean trollsDropWeapon = true;
     public double trollMaxHealth = 50;
@@ -138,6 +140,16 @@ public class IceAndFireConfig {
     public boolean completeDragonPathfinding = false;
     public boolean dragonAuto3rdPerson = true;
     public double dreadQueenMaxHealth = 750;
+    public boolean generateMausoleums = true;
+    public int generateMausoleumChance = 1800;
+    public boolean spawnLiches = true;
+    public int lichSpawnRate = 2;
+    public double hydraMaxHealth = 250D;
+    public boolean generateHydraCaves = true;
+    public int generateHydraChance = 200;
+    public boolean explosiveDragonBreath = false;
+    public float weezerTinkersDisarmChance = 0.2F;
+    public boolean chunkLoadSummonCrystal = true;
 
     public void init(Configuration config) {
         this.customMainMenu = config.getBoolean("Custom main menu", "all", true, "Whether to display the dragon on the main menu or not");
@@ -184,13 +196,14 @@ public class IceAndFireConfig {
         this.dragonDropSkull = config.getBoolean("Dragons Drop Skull", "all", true, "True if dragons can drop their skull on death.");
         this.dragonDropHeart = config.getBoolean("Dragons Drop Heart", "all", true, "True if dragons can drop their heart on death.");
         this.dragonDropBlood = config.getBoolean("Dragons Drop Blood", "all", true, "True if dragons can drop their blood on death.");
+        this.explosiveDragonBreath = config.getBoolean("Explosive Dragon Breath", "all", false, "True if dragons fire/ice charges create secondary explosions that launch blocks everywhere. Turn this to true if you like unfair explosions. Or lag.");
         this.dragonTargetSearchLength = config.getInt("Dragon Target Search Length", "all", 128, 1, 10000, "How many blocks away can dragons spot potential prey. Note that increasing this could cause lag.");
         this.dragonWanderFromHomeDistance = config.getInt("Dragon Wander From Home Distance", "all", 40, 1, 10000, "How many blocks away can dragons wander from their defined \"home\" position.");
         this.dragonHungerTickRate = config.getInt("Dragon Hunger Tick Rate", "all", 3000, 1, 10000, "Every interval of this number in ticks, dragon hunger decreases.");
         this.dragonBreakBlockCooldown = config.getInt("Dragon Block Break Cooldown", "all", 5, 0, 10000, "Every interval of this number in ticks, dragon allowed to break blocks.");
         this.villagersFearDragons = config.getBoolean("Villagers Fear Dragons", "all", true, "True if villagers should run away and hide from dragons and other hostile Ice and Fire mobs.");
         this.animalsFearDragons = config.getBoolean("Animals Fear Dragons", "all", true, "True if animals should run away and hide from dragons and other hostile Ice and Fire mobs.");
-        this.blacklistedBreakBlocks = config.getStringList("Blacklisted Blocks from Dragon", "all", new String[0], "Blacklist for blocks that dragons are not to break or burn. Ex. \"minecraft:chest\" or \"rats:rat_crafting_table\"");
+        this.blacklistedBreakBlocks = config.getStringList("Blacklisted Blocks from Dragon", "all", new String[0], "Blacklist for blocks that dragons are not to break or burn. Ex. \"minecraft:sponge\" or \"rats:rat_crafting_table\"");
         this.noDropBreakBlocks = config.getStringList("No-Drop Blocks from Dragon Block Breaking", "all", new String[]{"minecraft:stone", "minecraft:dirt", "minecraft:grass"}, "Blocks that will not drop as items when broken by a dragon. Ex. \"minecraft:chest\" or \"rats:rat_crafting_table\"");
         this.blacklistBreakBlocksIsWhiteList = config.getBoolean("Blacklisted Blocks from Dragon is a Whitelist", "all", false, "If true, then the blacklist will act as a whitelist.");
         this.completeDragonPathfinding = config.getBoolean("Intelligent Dragon Pathfinding", "all", false, "A more intelligent dragon pathfinding system, but is also laggier. Turn this on if you think dragons are too stupid.");
@@ -208,8 +221,12 @@ public class IceAndFireConfig {
         this.pixieVillageSize = config.getInt("Pixie Village Size", "all", 5, 1, 10000, "size of pixie villages");
         this.pixiesStealItems = config.getBoolean("Pixies Steal Items", "all", true, "True if pixies are allowed to steal from players");
 
-        this.generateCyclopsCaves = config.getBoolean("Spawn Cyclopes", "all", true, "True if cyclops caves are allowed to spawn");
-        this.spawnCyclopsChance = config.getInt("Spawn Cyclops Chance", "all", 170, 1, 10000, "1 out of this number chance per chunk for generation");
+        this.generateCyclopsCaves = config.getBoolean("Spawn Cyclopes Caves", "all", true, "True if cyclops caves are allowed to spawn");
+        this.spawnCyclopsCaveChance = config.getInt("Spawn Cyclops Cave Chance", "all", 170, 1, 10000, "1 out of this number chance per chunk for generation");
+
+        this.generateWanderingCyclops = config.getBoolean("Spawn Wandering Cyclopes", "all", true, "True if wandering cyclopes are allowed to spawn");
+        this.spawnWanderingCyclopsChance = config.getInt("Spawn Wandering Cyclops Chance", "all", 900, 1, 10000, "1 out of this number chance per chunk for generation");
+
         this.cyclopsMaxHealth = (double) config.getFloat("Cyclops Max Health", "all", 150, 1, 10000, "Maximum cyclops health");
         this.cyclopesSheepSearchLength = config.getInt("Cyclopes Sheep Search Length", "all", 17, 1, 10000, "How many blocks away can cyclopes detect sheep. Note that increasing this could cause lag.");
         this.cyclopsAttackStrength = (double) config.getFloat("Cyclops Attack Strength", "all", 15, 1, 10000, "Cyclops attack strength");
@@ -254,7 +271,7 @@ public class IceAndFireConfig {
 
         this.spawnTrolls = config.getBoolean("Spawn Trolls", "all", true, "True if trolls are allowed to spawn");
         this.trollsDropWeapon = config.getBoolean("Trolls Drop Weapon", "all", true, "True if trolls are allowed to drop their weapon on death.");
-        this.trollSpawnRate = config.getInt("Troll Spawn Weight", "all", 40, 1, 10000, "Troll spawn weight. Lower = lower chance to spawn");
+        this.trollSpawnRate = config.getInt("Troll Spawn Weight", "all", 60, 1, 10000, "Troll spawn weight. Lower = lower chance to spawn");
         this.trollSpawnCheckChance = config.getInt("Troll Spawn Check Chance", "all", 1, 1, 10000, "A double check to see if the game can spawn trolls. Higher number = lower chance to spawn.");
         this.trollMaxHealth = (double) config.getFloat("Troll Max Health", "all", 50, 1, 10000, "Maximum troll health");
         this.trollAttackStrength = (double) config.getFloat("Troll Attack Strength", "all", 10, 1, 10000, "Troll attack strength");
@@ -288,7 +305,17 @@ public class IceAndFireConfig {
         this.dragonsteelBaseDurability = config.getInt("Dragonsteel Base Durability", "all", 8000, 1, Integer.MAX_VALUE, "Default durability value of dragonsteel sword.");
         this.dragonMovedWronglyFix = config.getBoolean("Dragon Moved Wrongly Error Fix", "all", false, "Enable this if your server is being bombarded with moved wrongly or moved too fast console messages. REQUIRES RESTART!");
         this.weezerTinkers = config.getBoolean("Weezer", "all", true, "Disable this to remove easter egg with tinkers installed.");
+        this.weezerTinkersDisarmChance = config.getFloat("Easter Egg Tinkers Tool Disarm chance", "all", 0.2F, 0F, 1F, "Percentage of critical strike that will disarm with easter egg tinkers material.");
 
-        this.dreadQueenMaxHealth = (double) config.getFloat("Dread Queen Max Health", "all", 750, 1, Integer.MAX_VALUE, "Maximum dread queen health");
+        this.generateMausoleums = config.getBoolean("Generate Mausoleums", "all", true, "True if mausoleums are allowed to generate");
+        this.generateMausoleumChance = config.getInt("Mausoleum Gen Chance", "all", 1800, 1, 10000, "One out of this number chance per chunk to generate a mausoleum.");
+        this.spawnLiches = config.getBoolean("Spawn Liches", "all", true, "True if dread liches are allowed to spawn");
+        this.lichSpawnRate = config.getInt("Lich Spawn Weight", "all", 2, 1, 10000, "Dread Lich spawn weight. Lower = lower chance to spawn");
+
+        this.hydraMaxHealth = (double) config.getFloat("Hydra Max Health", "all", 250, 1, 10000, "Maximum hydra health");
+        this.generateHydraCaves = config.getBoolean("Generate Hydra Caves", "all", true, "True if hydra caves are allowed to generate");
+        this.generateHydraChance = config.getInt("Hydra Caves Gen Chance", "all", 200, 1, 10000, "One out of this number chance per chunk to generate a hydra cave.");
+
+        this.chunkLoadSummonCrystal = config.getBoolean("Chunk Load Summon Crystal", "all", true, "True if the summon crystal can load chunks to find dragons.");
     }
 }

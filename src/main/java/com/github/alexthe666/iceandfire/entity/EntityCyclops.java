@@ -1,10 +1,13 @@
 package com.github.alexthe666.iceandfire.entity;
 
 import com.github.alexthe666.iceandfire.IceAndFire;
-import com.github.alexthe666.iceandfire.core.ModSounds;
+import com.github.alexthe666.iceandfire.api.event.GenericGriefEvent;
+import com.github.alexthe666.iceandfire.misc.IafSoundRegistry;
 import com.github.alexthe666.iceandfire.entity.ai.CyclopsAIAttackMelee;
 import com.github.alexthe666.iceandfire.entity.ai.CyclopsAITargetSheepPlayers;
-import com.github.alexthe666.iceandfire.event.EventServer;
+import com.github.alexthe666.iceandfire.event.ServerEvents;
+import com.github.alexthe666.iceandfire.pathfinding.PathNavigateCyclops;
+import com.github.alexthe666.iceandfire.pathfinding.PathNavigateDragon;
 import com.google.common.base.Predicate;
 import net.ilexiconn.llibrary.server.animation.Animation;
 import net.ilexiconn.llibrary.server.animation.AnimationHandler;
@@ -32,6 +35,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.pathfinding.PathNavigate;
 import net.minecraft.pathfinding.PathNodeType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumParticleTypes;
@@ -43,10 +47,11 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraft.world.storage.loot.LootTableList;
+import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nullable;
 
-public class EntityCyclops extends EntityMob implements IAnimatedEntity, IBlacklistedFromStatues, IVillagerFear {
+public class EntityCyclops extends EntityMob implements IAnimatedEntity, IBlacklistedFromStatues, IVillagerFear, IHumanoid {
 
     public static final ResourceLocation LOOT = LootTableList.register(new ResourceLocation("iceandfire", "cyclops"));
     private static final DataParameter<Boolean> BLINDED = EntityDataManager.createKey(EntityCyclops.class, DataSerializers.BOOLEAN);
@@ -62,7 +67,7 @@ public class EntityCyclops extends EntityMob implements IAnimatedEntity, IBlackl
     public EntityCyclops(World worldIn) {
         super(worldIn);
         this.setSize(1.95F, 7.4F);
-        this.stepHeight = 2;
+        this.stepHeight = 2.5F;
         this.setPathPriority(PathNodeType.WATER, -1.0F);
         this.setPathPriority(PathNodeType.FENCE, 0.0F);
 
@@ -73,6 +78,11 @@ public class EntityCyclops extends EntityMob implements IAnimatedEntity, IBlackl
         ANIMATION_ROAR = Animation.create(30);
 
     }
+
+    protected PathNavigate createNavigator(World worldIn) {
+        return new PathNavigateCyclops(this, world);
+    }
+
 
     protected int getExperiencePoints(EntityPlayer player) {
         return 40;
@@ -90,7 +100,7 @@ public class EntityCyclops extends EntityMob implements IAnimatedEntity, IBlackl
         this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityLivingBase.class, 0, true, true, new Predicate<EntityLivingBase>() {
             @Override
             public boolean apply(@Nullable EntityLivingBase entity) {
-                return !EntityGorgon.isStoneMob(entity) && DragonUtils.isAlive(entity) && !(entity instanceof EntityWaterMob) && !(entity instanceof EntityPlayer) && !(entity instanceof EntityCyclops) && !EventServer.isAnimaniaSheep(entity) && !(entity instanceof EntityAnimal && !(entity instanceof EntityWolf || entity instanceof EntityPolarBear || entity instanceof EntityDragonBase)) || entity instanceof EntityGorgon || entity instanceof EntityVillager;
+                return !EntityGorgon.isStoneMob(entity) && DragonUtils.isAlive(entity) && !(entity instanceof EntityWaterMob) && !(entity instanceof EntityPlayer) && !(entity instanceof EntityCyclops) && !ServerEvents.isAnimaniaSheep(entity) && !(entity instanceof EntityAnimal && !(entity instanceof EntityWolf || entity instanceof EntityPolarBear || entity instanceof EntityDragonBase)) || entity instanceof EntityGorgon || entity instanceof EntityVillager;
             }
         }));
         this.targetTasks.addTask(3, new CyclopsAITargetSheepPlayers(this, EntityPlayer.class, 0, true, true, new Predicate<Entity>() {
@@ -102,7 +112,7 @@ public class EntityCyclops extends EntityMob implements IAnimatedEntity, IBlackl
     }
 
     protected void collideWithEntity(Entity entityIn) {
-        if (!EventServer.isAnimaniaSheep(entityIn)) {
+        if (!ServerEvents.isAnimaniaSheep(entityIn)) {
             entityIn.applyEntityCollision(this);
         }
     }
@@ -130,6 +140,7 @@ public class EntityCyclops extends EntityMob implements IAnimatedEntity, IBlackl
     protected void applyEntityAttributes() {
         super.applyEntityAttributes();
         this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.35D);
+        this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(32D);
         this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(IceAndFire.CONFIG.cyclopsAttackStrength);
         this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(IceAndFire.CONFIG.cyclopsMaxHealth);
         this.getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1D);
@@ -232,10 +243,10 @@ public class EntityCyclops extends EntityMob implements IAnimatedEntity, IBlackl
             this.setAttackTarget(null);
         }
         if (this.getAnimation() == ANIMATION_ROAR && this.getAnimationTick() == 5) {
-            this.playSound(ModSounds.CYCLOPS_BLINDED, 1, 1);
+            this.playSound(IafSoundRegistry.CYCLOPS_BLINDED, 1, 1);
         }
         if (this.getAnimation() == ANIMATION_EATPLAYER && this.getAnimationTick() == 25) {
-            this.playSound(ModSounds.CYCLOPS_BITE, 1, 1);
+            this.playSound(IafSoundRegistry.CYCLOPS_BITE, 1, 1);
         }
         if (this.getAnimation() == ANIMATION_STOMP && this.getAttackTarget() != null && this.getDistanceSq(this.getAttackTarget()) < 12D && this.getAnimationTick() == 14) {
             this.getAttackTarget().attackEntityFrom(DamageSource.causeMobDamage(this), (float) this.getAttributeMap().getAttributeInstance(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue());
@@ -294,6 +305,7 @@ public class EntityCyclops extends EntityMob implements IAnimatedEntity, IBlackl
                         if (state.getMaterial() != Material.AIR && !(block instanceof BlockBush) && !(block instanceof BlockLiquid) && block != Blocks.BEDROCK && (state.getBlock().isLeaves(state, world, pos) || state.getBlock().canSustainLeaves(state, world, pos))) {
                             this.motionX *= 0.6D;
                             this.motionZ *= 0.6D;
+                            if (MinecraftForge.EVENT_BUS.post(new GenericGriefEvent(this, a, b, c))) continue;
                             if (block != Blocks.AIR) {
                                 if (!world.isRemote) {
                                     world.destroyBlock(pos, true);
@@ -360,17 +372,17 @@ public class EntityCyclops extends EntityMob implements IAnimatedEntity, IBlackl
 
     @Nullable
     protected SoundEvent getAmbientSound() {
-        return ModSounds.CYCLOPS_IDLE;
+        return IafSoundRegistry.CYCLOPS_IDLE;
     }
 
     @Nullable
     protected SoundEvent getHurtSound(DamageSource p_184601_1_) {
-        return ModSounds.CYCLOPS_HURT;
+        return IafSoundRegistry.CYCLOPS_HURT;
     }
 
     @Nullable
     protected SoundEvent getDeathSound() {
-        return ModSounds.CYCLOPS_DIE;
+        return IafSoundRegistry.CYCLOPS_DIE;
     }
 
     @Override

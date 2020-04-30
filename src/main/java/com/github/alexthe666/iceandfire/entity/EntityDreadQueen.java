@@ -1,9 +1,10 @@
 package com.github.alexthe666.iceandfire.entity;
 
 import com.github.alexthe666.iceandfire.IceAndFire;
-import com.github.alexthe666.iceandfire.core.ModItems;
+import com.github.alexthe666.iceandfire.item.IafItemRegistry;
 import com.github.alexthe666.iceandfire.entity.ai.DreadAIMountDragon;
 import com.github.alexthe666.iceandfire.entity.ai.DreadAITargetNonDread;
+import com.google.common.base.Predicate;
 import net.ilexiconn.llibrary.server.animation.Animation;
 import net.ilexiconn.llibrary.server.animation.IAnimatedEntity;
 import net.minecraft.entity.Entity;
@@ -16,6 +17,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.BossInfo;
 import net.minecraft.world.BossInfoServer;
 import net.minecraft.world.DifficultyInstance;
@@ -42,7 +44,13 @@ public class EntityDreadQueen extends EntityDreadMob implements IAnimatedEntity,
         this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
         this.tasks.addTask(7, new EntityAILookIdle(this));
         this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, false));
-        this.targetTasks.addTask(3, new DreadAITargetNonDread(this, EntityLivingBase.class, false));
+        this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityPlayer.class, true));
+        this.targetTasks.addTask(3, new DreadAITargetNonDread(this, EntityLivingBase.class, false, new Predicate<Entity>() {
+            @Override
+            public boolean apply(@Nullable Entity entity) {
+                return entity instanceof EntityLivingBase && DragonUtils.canHostilesTarget(entity);
+            }
+        }));
     }
 
     protected void applyEntityAttributes() {
@@ -93,8 +101,8 @@ public class EntityDreadQueen extends EntityDreadMob implements IAnimatedEntity,
 
     protected void setEquipmentBasedOnDifficulty(DifficultyInstance difficulty) {
         super.setEquipmentBasedOnDifficulty(difficulty);
-        this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ModItems.dread_queen_sword));
-        this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, new ItemStack(ModItems.dread_queen_staff));
+        this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(IafItemRegistry.dread_queen_sword));
+        this.setItemStackToSlot(EntityEquipmentSlot.OFFHAND, new ItemStack(IafItemRegistry.dread_queen_staff));
     }
 
     @Override

@@ -5,7 +5,7 @@ import com.github.alexthe666.iceandfire.entity.EntityMyrmexBase;
 import com.github.alexthe666.iceandfire.entity.EntityMyrmexWorker;
 import com.github.alexthe666.iceandfire.entity.MyrmexHive;
 import com.github.alexthe666.iceandfire.entity.tile.TileEntityMyrmexCocoon;
-import com.github.alexthe666.iceandfire.structures.WorldGenMyrmexHive;
+import com.github.alexthe666.iceandfire.world.gen.WorldGenMyrmexHive;
 import net.minecraft.entity.ai.EntityAIBase;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -56,7 +56,7 @@ public class MyrmexAIStoreItems extends EntityAIBase {
                 this.myrmex.getNavigator().tryMoveToXYZ(mainRoom.getX() + 0.5D, mainRoom.getY() + 0.5D, mainRoom.getZ() + 0.5D, this.movementSpeed);
 
             }
-            if (this.myrmex.getDistanceSq(mainRoom) < 8) {
+            if (this.myrmex.getDistanceSq(mainRoom) < 10D) {
                 first = false;
                 return;
             }
@@ -65,7 +65,7 @@ public class MyrmexAIStoreItems extends EntityAIBase {
             if(this.myrmex.getNavigator().noPath()) {
                 this.myrmex.getNavigator().tryMoveToXYZ(nextCocoon.getX() + 0.5D, nextCocoon.getY() + 0.5D, nextCocoon.getZ() + 0.5D, this.movementSpeed);
             }
-            if (this.myrmex.getDistanceSq(nextCocoon) < 4 && !this.myrmex.getHeldItem(EnumHand.MAIN_HAND).isEmpty() && isUseableCocoon(nextCocoon)) {
+            if (this.myrmex.getDistanceSq(nextCocoon) < 5.5D && !this.myrmex.getHeldItem(EnumHand.MAIN_HAND).isEmpty() && isUseableCocoon(nextCocoon)) {
                 TileEntityMyrmexCocoon cocoon = (TileEntityMyrmexCocoon) this.myrmex.world.getTileEntity(nextCocoon);
                 ItemStack itemstack = this.myrmex.getHeldItem(EnumHand.MAIN_HAND);
                 if (!itemstack.isEmpty()) {

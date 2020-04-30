@@ -1,7 +1,8 @@
 package com.github.alexthe666.iceandfire.entity;
 
-import com.github.alexthe666.iceandfire.core.ModItems;
+import com.github.alexthe666.iceandfire.item.IafItemRegistry;
 import com.github.alexthe666.iceandfire.entity.ai.DreadAITargetNonDread;
+import com.google.common.base.Predicate;
 import net.ilexiconn.llibrary.server.animation.Animation;
 import net.ilexiconn.llibrary.server.animation.AnimationHandler;
 import net.ilexiconn.llibrary.server.animation.IAnimatedEntity;
@@ -11,24 +12,27 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.IEntityLivingData;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.*;
-import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.*;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.World;
+import net.minecraft.world.storage.loot.LootTableList;
 
 import javax.annotation.Nullable;
 
 public class EntityDreadThrall extends EntityDreadMob implements IAnimatedEntity, IVillagerFear, IAnimalFear {
 
+    public static final ResourceLocation LOOT = LootTableList.register(new ResourceLocation("iceandfire", "dread_thrall"));
     private static final DataParameter<Boolean> CUSTOM_ARMOR_HEAD = EntityDataManager.createKey(EntityDreadThrall.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> CUSTOM_ARMOR_CHEST = EntityDataManager.createKey(EntityDreadThrall.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> CUSTOM_ARMOR_LEGS = EntityDataManager.createKey(EntityDreadThrall.class, DataSerializers.BOOLEAN);
@@ -49,14 +53,20 @@ public class EntityDreadThrall extends EntityDreadMob implements IAnimatedEntity
         this.tasks.addTask(5, new EntityAIWanderAvoidWater(this, 1.0D));
         this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
         this.tasks.addTask(7, new EntityAILookIdle(this));
-        this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, false));
-        this.targetTasks.addTask(3, new DreadAITargetNonDread(this, EntityLivingBase.class, false));
+        this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, true, new Class[] {IDreadMob.class}));
+        this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityPlayer.class, true));
+        this.targetTasks.addTask(3, new DreadAITargetNonDread(this, EntityLivingBase.class, false, new Predicate<Entity>() {
+            @Override
+            public boolean apply(@Nullable Entity entity) {
+                return entity instanceof EntityLivingBase && DragonUtils.canHostilesTarget(entity);
+            }
+        }));
     }
 
     protected void applyEntityAttributes() {
         super.applyEntityAttributes();
         this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(20.0D);
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.15D);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.2D);
         this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(2.0D);
         this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(128.0D);
         this.getEntityAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(2.0D);
@@ -82,6 +92,9 @@ public class EntityDreadThrall extends EntityDreadMob implements IAnimatedEntity
                 }
             }
         }
+        if(this.getHeldItemMainhand().getItem() == Items.BOW){
+            this.setHeldItem(EnumHand.MAIN_HAND, new ItemStack(Items.BONE));
+        }
         AnimationHandler.INSTANCE.updateAnimations(this);
     }
 
@@ -90,7 +103,7 @@ public class EntityDreadThrall extends EntityDreadMob implements IAnimatedEntity
         if (rand.nextFloat() < 0.75F) {
             double chance = rand.nextFloat();
             if (chance < 0.0025F) {
-                this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ModItems.dragonsteel_ice_sword));
+                this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(IafItemRegistry.dragonsteel_ice_sword));
             }
             if (chance < 0.01F) {
                 this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.DIAMOND_SWORD));
@@ -99,7 +112,7 @@ public class EntityDreadThrall extends EntityDreadMob implements IAnimatedEntity
                 this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
             }
             if (chance < 0.75F) {
-                this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(ModItems.dread_sword));
+                this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(IafItemRegistry.dread_sword));
             }
         }
         if (rand.nextFloat() < 0.75F) {
@@ -222,4 +235,29 @@ public class EntityDreadThrall extends EntityDreadMob implements IAnimatedEntity
     public boolean shouldFear() {
         return true;
     }
+
+    @Nullable
+    protected ResourceLocation getLootTable() {
+        return LOOT;
+    }
+
+    @Nullable
+    protected SoundEvent getAmbientSound() {
+        return SoundEvents.ENTITY_STRAY_AMBIENT;
+    }
+
+    @Nullable
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return SoundEvents.ENTITY_STRAY_HURT;
+    }
+
+    @Nullable
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.ENTITY_STRAY_DEATH;
+    }
+
+    protected void playStepSound(BlockPos pos, Block blockIn) {
+        this.playSound(SoundEvents.ENTITY_STRAY_STEP, 0.15F, 1.0F);
+    }
+
 }

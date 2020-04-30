@@ -18,7 +18,7 @@ public enum EnumBestiaryPages {
     ICEDRAGONEGG(1),
     TAMEDDRAGONS(3),
     MATERIALS(2),
-    ALCHEMY(0),
+    ALCHEMY(1),
     DRAGONFORGE(3),
     VILLAGERS(0),
     HIPPOGRYPH(1),
@@ -33,7 +33,9 @@ public enum EnumBestiaryPages {
     TROLL(2),
     MYRMEX(4),
     AMPHITHERE(2),
-    SEASERPENT(2);
+    SEASERPENT(2),
+    HYDRA(2),
+    DREAD_MOBS(1);
 
     public int pages;
 

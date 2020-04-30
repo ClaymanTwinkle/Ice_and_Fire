@@ -1,5 +1,6 @@
 package com.github.alexthe666.iceandfire.client.model;
 
+import net.ilexiconn.llibrary.LLibrary;
 import net.ilexiconn.llibrary.client.model.ModelAnimator;
 import net.ilexiconn.llibrary.client.model.tools.AdvancedModelBase;
 import net.ilexiconn.llibrary.client.model.tools.AdvancedModelRenderer;
@@ -19,6 +20,18 @@ public abstract class ModelDragonBase extends AdvancedModelBase implements ICust
 
     public void rotateMinus(ModelAnimator animator, AdvancedModelRenderer model, float x, float y, float z) {
         animator.rotate(model, (float) Math.toRadians(x) - model.defaultRotationX, (float) Math.toRadians(y) - model.defaultRotationY, (float) Math.toRadians(z) - model.defaultRotationZ);
+    }
+
+    public void progressRotationInterp(AdvancedModelRenderer model, float progress, float rotX, float rotY, float rotZ, float max) {
+        model.rotateAngleX += progress * (rotX - model.defaultRotationX) / max;
+        model.rotateAngleY += progress * (rotY - model.defaultRotationY) / max;
+        model.rotateAngleZ += progress * (rotZ - model.defaultRotationZ) / max;
+    }
+
+    public void progresPositionInterp(AdvancedModelRenderer model, float progress, float x, float y, float z, float max) {
+        model.rotationPointX += progress * (x) / max;
+        model.rotationPointY += progress * (y) / max;
+        model.rotationPointZ += progress * (z) / max;
     }
 
     public void progressRotation(AdvancedModelRenderer model, float progress, float rotX, float rotY, float rotZ) {

@@ -2,9 +2,9 @@ package com.github.alexthe666.iceandfire.entity;
 
 import com.github.alexthe666.iceandfire.IceAndFire;
 import com.github.alexthe666.iceandfire.client.model.IFChainBuffer;
-import com.github.alexthe666.iceandfire.core.ModItems;
-import com.github.alexthe666.iceandfire.core.ModKeys;
-import com.github.alexthe666.iceandfire.core.ModSounds;
+import com.github.alexthe666.iceandfire.item.IafItemRegistry;
+import com.github.alexthe666.iceandfire.client.IafKeybindRegistry;
+import com.github.alexthe666.iceandfire.misc.IafSoundRegistry;
 import com.github.alexthe666.iceandfire.entity.ai.*;
 import com.github.alexthe666.iceandfire.enums.EnumHippogryphTypes;
 import com.github.alexthe666.iceandfire.message.MessageDragonControl;
@@ -27,9 +27,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.inventory.ContainerHorseChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.IInventoryChangedListener;
+import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
@@ -93,6 +93,8 @@ public class EntityHippogryph extends EntityTameable implements ISyncMount, IAni
     private boolean hasChestVarChanged = false;
     private int navigatorType = -1;
     private boolean isOverAir;
+    public int feedings = 0;
+
     public EntityHippogryph(World worldIn) {
         super(worldIn);
         ANIMATION_EAT = Animation.create(25);
@@ -110,7 +112,7 @@ public class EntityHippogryph extends EntityTameable implements ISyncMount, IAni
     protected void switchNavigator(){
         if(this.isBeingRidden() && this.isOverAir()){
             if(navigatorType != 1){
-                this.moveHelper = new IaFDragonFlightManager.PlayerFlightMoveHelper(this);
+                this.moveHelper = new IafDragonFlightManager.PlayerFlightMoveHelper(this);
                 this.navigator = new PathNavigateFlyingCreature(this, world);
                 navigatorType = 1;
             }
@@ -235,13 +237,13 @@ public class EntityHippogryph extends EntityTameable implements ISyncMount, IAni
     }
 
     public int getIntFromArmor(ItemStack stack) {
-        if (!stack.isEmpty() && stack.getItem() != null && stack.getItem() == ModItems.iron_hippogryph_armor) {
+        if (!stack.isEmpty() && stack.getItem() != null && stack.getItem() == IafItemRegistry.iron_hippogryph_armor) {
             return 1;
         }
-        if (!stack.isEmpty() && stack.getItem() != null && stack.getItem() == ModItems.gold_hippogryph_armor) {
+        if (!stack.isEmpty() && stack.getItem() != null && stack.getItem() == IafItemRegistry.gold_hippogryph_armor) {
             return 2;
         }
-        if (!stack.isEmpty() && stack.getItem() != null && stack.getItem() == ModItems.diamond_hippogryph_armor) {
+        if (!stack.isEmpty() && stack.getItem() != null && stack.getItem() == IafItemRegistry.diamond_hippogryph_armor) {
             return 3;
         }
         return 0;
@@ -422,6 +424,7 @@ public class EntityHippogryph extends EntityTameable implements ISyncMount, IAni
         compound.setBoolean("Hovering", this.isHovering());
         compound.setBoolean("Flying", this.isFlying());
         compound.setInteger("Armor", this.getArmor());
+        compound.setInteger("Feedings", feedings);
         if (hippogryphInventory != null) {
             NBTTagList nbttaglist = new NBTTagList();
             for (int i = 0; i < this.hippogryphInventory.getSizeInventory(); ++i) {
@@ -456,6 +459,7 @@ public class EntityHippogryph extends EntityTameable implements ISyncMount, IAni
         this.setHovering(compound.getBoolean("Hovering"));
         this.setFlying(compound.getBoolean("Flying"));
         this.setArmor(compound.getInteger("Armor"));
+        feedings = compound.getInteger("Feedings");
         if (hippogryphInventory != null) {
             NBTTagList nbttaglist = compound.getTagList("Items", 10);
             this.initHippogryphInv();
@@ -685,17 +689,17 @@ public class EntityHippogryph extends EntityTameable implements ISyncMount, IAni
 
     @Nullable
     protected SoundEvent getAmbientSound() {
-        return ModSounds.HIPPOGRYPH_IDLE;
+        return IafSoundRegistry.HIPPOGRYPH_IDLE;
     }
 
     @Nullable
     protected SoundEvent getHurtSound(DamageSource p_184601_1_) {
-        return ModSounds.HIPPOGRYPH_HURT;
+        return IafSoundRegistry.HIPPOGRYPH_HURT;
     }
 
     @Nullable
     protected SoundEvent getDeathSound() {
-        return ModSounds.HIPPOGRYPH_DIE;
+        return IafSoundRegistry.HIPPOGRYPH_DIE;
     }
 
     @Override
@@ -718,8 +722,8 @@ public class EntityHippogryph extends EntityTameable implements ISyncMount, IAni
         if (this.isRidingPlayer(mc.player)) {
             byte previousState = getControlState();
             up(mc.gameSettings.keyBindJump.isKeyDown());
-            down(ModKeys.dragon_down.isKeyDown());
-            attack(ModKeys.dragon_strike.isKeyDown());
+            down(IafKeybindRegistry.dragon_down.isKeyDown());
+            attack(IafKeybindRegistry.dragon_strike.isKeyDown());
             dismount(mc.gameSettings.keyBindSneak.isKeyDown());
             byte controlState = getControlState();
             if (controlState != previousState) {
@@ -761,7 +765,7 @@ public class EntityHippogryph extends EntityTameable implements ISyncMount, IAni
         int i = MathHelper.floor(this.posX);
         int j = MathHelper.floor(this.posY);
         int k = MathHelper.floor(this.posZ);
-        ItemStack stack = new ItemStack(ModItems.hippogryph_egg);
+        ItemStack stack = new ItemStack(IafItemRegistry.hippogryph_egg);
         EntityItem egg = new EntityItem(this.world, i, j, k, stack);
         return egg;
     }
@@ -870,7 +874,7 @@ public class EntityHippogryph extends EntityTameable implements ISyncMount, IAni
         } else if (!hovering && hoverProgress > 0.0F) {
             hoverProgress -= 0.5F;
         }
-        boolean flying = this.isFlying() || !this.isHovering() && airBorneCounter > 50;
+        boolean flying = this.isFlying() || !this.isHovering() && airBorneCounter > 10;
         if (flying && flyProgress < 20.0F) {
             flyProgress += 0.5F;
         } else if (!flying && flyProgress > 0.0F) {
@@ -1139,10 +1143,10 @@ public class EntityHippogryph extends EntityTameable implements ISyncMount, IAni
         return false;
     }
 
-    public class HippogryphInventory extends ContainerHorseChest {
+    public class HippogryphInventory extends InventoryBasic {
 
         public HippogryphInventory(String inventoryTitle, int slotCount, EntityHippogryph hippogryph) {
-            super(inventoryTitle, slotCount);
+            super(inventoryTitle, false, slotCount);
             this.addInventoryChangeListener(new HippogryphInventoryListener(hippogryph));
         }
 

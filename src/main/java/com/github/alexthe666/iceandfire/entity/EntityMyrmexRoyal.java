@@ -1,7 +1,6 @@
 package com.github.alexthe666.iceandfire.entity;
 
 import com.github.alexthe666.iceandfire.IceAndFire;
-import com.github.alexthe666.iceandfire.core.ModVillagers;
 import com.github.alexthe666.iceandfire.entity.ai.*;
 import com.google.common.base.Predicate;
 import net.ilexiconn.llibrary.server.animation.Animation;
@@ -260,7 +259,7 @@ public class EntityMyrmexRoyal extends EntityMyrmexBase {
     }
 
     public VillagerRegistry.VillagerProfession getProfessionForge() {
-        return this.isJungle() ? ModVillagers.INSTANCE.jungleMyrmexRoyal : ModVillagers.INSTANCE.desertMyrmexRoyal;
+        return this.isJungle() ? IafVillagerRegistry.INSTANCE.jungleMyrmexRoyal : IafVillagerRegistry.INSTANCE.desertMyrmexRoyal;
     }
 
     public boolean shouldMoveThroughHive() {
@@ -481,17 +480,19 @@ public class EntityMyrmexRoyal extends EntityMyrmexBase {
 
         public void updateTask() {
             EntityLivingBase entitylivingbase = EntityMyrmexRoyal.this.getAttackTarget();
+            if(entitylivingbase != null){
+                if (EntityMyrmexRoyal.this.getEntityBoundingBox().intersects(entitylivingbase.getEntityBoundingBox())) {
+                    EntityMyrmexRoyal.this.attackEntityAsMob(entitylivingbase);
+                } else {
+                    double d0 = EntityMyrmexRoyal.this.getDistanceSq(entitylivingbase);
 
-            if (EntityMyrmexRoyal.this.getEntityBoundingBox().intersects(entitylivingbase.getEntityBoundingBox())) {
-                EntityMyrmexRoyal.this.attackEntityAsMob(entitylivingbase);
-            } else {
-                double d0 = EntityMyrmexRoyal.this.getDistanceSq(entitylivingbase);
-
-                if (d0 < 9.0D) {
-                    Vec3d vec3d = entitylivingbase.getPositionEyes(1.0F);
-                    EntityMyrmexRoyal.this.moveHelper.setMoveTo(vec3d.x, vec3d.y, vec3d.z, 1.0D);
+                    if (d0 < 9.0D) {
+                        Vec3d vec3d = entitylivingbase.getPositionEyes(1.0F);
+                        EntityMyrmexRoyal.this.moveHelper.setMoveTo(vec3d.x, vec3d.y, vec3d.z, 1.0D);
+                    }
                 }
             }
+
         }
     }
 }

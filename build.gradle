@@ -21,7 +21,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the nessasary things for Forge to be setup.
 
-version = "1.8.4"
+version = "1.9.1"
 group= "iceandfire"
 archivesBaseName = "iceandfire"
 sourceCompatibility = targetCompatibility = "1.8"
@@ -126,3 +126,8 @@ task devJar(type: Jar) {
     from sourceSets.main.output
 }
 
+jar {
+    manifest {
+        attributes "FMLAT": "iceandfire_at.cfg"
+    }
+}
