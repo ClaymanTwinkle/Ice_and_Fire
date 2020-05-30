@@ -4,8 +4,11 @@ import com.github.alexthe666.iceandfire.IceAndFire;
 import com.github.alexthe666.iceandfire.misc.IafSoundRegistry;
 import com.github.alexthe666.iceandfire.message.MessageSpawnParticleAt;
 import net.ilexiconn.llibrary.server.entity.EntityPropertiesHandler;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.ai.EntityAITasks;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.pathfinding.Path;
 import net.minecraft.pathfinding.PathPoint;
@@ -14,6 +17,7 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentString;
 import org.apache.logging.log4j.Level;
 
 /*
@@ -475,17 +479,33 @@ public class IafDragonLogic {
         String side = dragon.world.isRemote ? "CLIENT" : "SERVER";
         String owner = dragon.getOwner() == null ? "null" : dragon.getOwner().getName();
         String attackTarget = dragon.getAttackTarget() == null ? "null" : dragon.getAttackTarget().getName();
-        IceAndFire.logger.log(Level.INFO, "DRAGON DEBUG[" + side + "]:"
+        boolean isInLove = dragon.isInLove();
+
+        String task = "";
+
+        for (EntityAITasks.EntityAITaskEntry taskEntry : dragon.tasks.taskEntries) {
+            if(taskEntry.using) {
+                task = taskEntry.action.getClass().getSimpleName();
+            }
+        }
+
+        String debugMessage = "DRAGON DEBUG[" + side + "]:"
                 + "\nStage: " + dragon.getDragonStage()
                 + "\nAge: " + dragon.getAgeInDays()
                 + "\nVariant: " + dragon.getVariantName(dragon.getVariant())
                 + "\nOwner: " + owner
+                + "\ntask: " + task
                 + "\nAttack Target: " + attackTarget
+                + "\ninLove: " + isInLove
                 + "\nFlying: " + dragon.isFlying()
                 + "\nHovering: " + dragon.isHovering()
-                + "\nWidth: " + dragon.width
+                + "\nWidth: " + dragon.width;
 
-        );
+
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        if (player != null) {
+            Minecraft.getMinecraft().player.sendMessage(new TextComponentString(debugMessage));
+        }
     }
 
     public void debugPathfinder(Path currentPath) {

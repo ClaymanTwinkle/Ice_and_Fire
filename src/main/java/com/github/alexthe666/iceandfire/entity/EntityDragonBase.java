@@ -222,8 +222,8 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
     @Override
     protected void initEntityAI() {
         this.tasks.addTask(0, new DragonAIRide<>(this));
-        this.tasks.addTask(1, this.aiSit = new EntityAISit(this));
-        this.tasks.addTask(2, new DragonAIMate(this, 1.0D));
+        this.tasks.addTask(1, new DragonAIMate(this, 1.0D));
+        this.tasks.addTask(2, this.aiSit = new EntityAISit(this));
         this.tasks.addTask(3, new DragonAIEscort(this, 1.0D));
         this.tasks.addTask(4, new DragonAIAttackMelee(this, 1.5D, false));
         this.tasks.addTask(5, new AquaticAITempt(this, 1.0D, IafItemRegistry.fire_stew, false));
