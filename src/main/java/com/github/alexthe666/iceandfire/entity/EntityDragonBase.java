@@ -960,6 +960,9 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
     @Override
     public boolean processInteract(EntityPlayer player, EnumHand hand) {
         ItemStack stack = player.getHeldItem(hand);
+        if (stack.getItem() == IafItemRegistry.dragon_horn) {
+            return false;
+        }
         int lastDeathStage = this.getAgeInDays() / 5;
         if (stack.getItem() == IafItemRegistry.dragon_debug_stick) {
             logic.debug();
@@ -1044,9 +1047,6 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
                 }
                 this.setTamedBy(player);
                 StoneEntityProperties properties = EntityPropertiesHandler.INSTANCE.getProperties(this, StoneEntityProperties.class);
-                if (stack.getItem() == IafItemRegistry.dragon_horn && (properties == null || !properties.isStone)) {
-                    return super.processInteract(player, hand);
-                }
                 if (stack.isEmpty() && !player.isSneaking()) {
                     if (this.getDragonStage() < 2) {
                         this.startRiding(player, true);
@@ -1147,10 +1147,6 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
     }
 
     protected ItemStack getSkull() {
-        return ItemStack.EMPTY;
-    }
-
-    public ItemStack getHorn() {
         return ItemStack.EMPTY;
     }
 
@@ -1588,8 +1584,11 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
             this.rotationYawHead = ((EntityPlayer) riding).rotationYawHead;
             this.prevRotationYaw = ((EntityPlayer) riding).rotationYawHead;
             this.setPositionAndRotation(riding.posX + extraX, riding.posY + extraY, riding.posZ + extraZ, ((EntityPlayer) riding).rotationYawHead, 0);
-            if ((this.getControlState() == 1 << 4 || ((EntityPlayer) riding).isElytraFlying()) && !riding.isRiding()) {
+            if ((riding.isSneaking() || ((EntityPlayer) riding).isElytraFlying()) && !riding.isRiding()) {
                 this.dismountRidingEntity();
+                if(world.isRemote){
+                    IceAndFire.NETWORK_WRAPPER.sendToServer(new MessageDragonControl(this.getEntityId(), this.getControlState(), posX, posY, posZ));
+                }
             }
 
         }
@@ -1664,7 +1663,7 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
         int k = MathHelper.floor(this.posZ);
         BlockPos pos = new BlockPos(i, j, k);
         EntityDragonEgg dragon = new EntityDragonEgg(this.world);
-        dragon.setType(EnumDragonEgg.byMetadata(new Random().nextInt(3) + getStartMetaForType()));
+        dragon.setType(EnumDragonEgg.byMetadata(MathHelper.clamp(getRNG().nextInt(4), 0, 3) + getStartMetaForType()));
         dragon.setPosition(pos.getX() + 0.5, pos.getY() + 1, pos.getZ() + 0.5);
         return dragon;
     }
