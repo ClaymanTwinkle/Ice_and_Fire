@@ -412,7 +412,8 @@ public class ServerEvents {
                                     event.getTarget().dropItem(Item.getItemFromBlock(Blocks.COBBLESTONE), 2 + event.getEntityLiving().getRNG().nextInt(4));
                                 }
                             }
-                            event.getTarget().world.removeEntityDangerously(event.getTarget());
+                            event.getEntityPlayer().world.removeEntity(event.getTarget());
+                            event.getEntityPlayer().world.removeEntityDangerously(event.getTarget());
                         }
                     }
                 }
@@ -658,7 +659,6 @@ public class ServerEvents {
                 living.motionY -= 0.1D;
                 living.swingProgress = 0;
                 living.limbSwing = 0;
-                living.setInvisible(!stonePlayer);
                 living.livingSoundTime = 0;
                 living.hurtTime = 0;
                 living.hurtResistantTime = living.maxHurtResistantTime - 1;
