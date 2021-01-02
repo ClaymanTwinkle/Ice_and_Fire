@@ -33,6 +33,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.*;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityTameable;
@@ -246,7 +247,7 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
                 return entity instanceof EntityLivingBase && DragonUtils.canHostilesTarget(entity);
             }
         }));
-        this.targetTasks.addTask(6, new DragonAITargetItems(this, false));
+        this.targetTasks.addTask(6, new DragonAITargetItems<>(this, false));
     }
 
     public void resetParts(float scale) {
@@ -1269,7 +1270,7 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
             int bounds = 1;//(int)Math.ceil(this.getRenderSize() * 0.1);
             int flightModifier = isFlying() && this.getAttackTarget() != null ? -1 : 1;
             if ((this.blockBreakCounter == 0 || IceAndFire.CONFIG.dragonBreakBlockCooldown == 0) && net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(this.world, this)) {
-                if (IceAndFire.CONFIG.dragonGriefing != 2 && (!this.isTamed() || IceAndFire.CONFIG.tamedDragonGriefing)) {
+                if (DragonUtils.isDragonGriefing(this)) {
                     float hardness = IceAndFire.CONFIG.dragonGriefing == 1 || this.getDragonStage() <= 3 ? 2.0F : 5.0F;
                     if (!isModelDead() && this.getDragonStage() >= 3 && (this.canMove() || this.getControllingPassenger() != null)) {
                         for (int a = (int) Math.floor(this.getEntityBoundingBox().minX) - bounds; a <= (int) Math.ceil(this.getEntityBoundingBox().maxX) + bounds; a++) {

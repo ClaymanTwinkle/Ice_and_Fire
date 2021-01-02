@@ -297,6 +297,10 @@ public class DragonUtils {
     }
 
 
+    public static boolean isDragonGriefing(EntityDragonBase dragon) {
+        return (!dragon.isTamed() || IceAndFire.CONFIG.tamedDragonGriefing) && IceAndFire.CONFIG.dragonGriefing != 2;
+    }
+
     public static boolean canGrief(boolean weak) {
         if (weak) {
             return IceAndFire.CONFIG.dragonGriefing == 0;
