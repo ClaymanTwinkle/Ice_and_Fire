@@ -27,8 +27,10 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
+import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.util.Collection;
+import java.util.Set;
 
 public class GuiDragonDebug extends Gui {
 
@@ -283,6 +285,8 @@ public class GuiDragonDebug extends Gui {
         text.println("Hovering: " + dragonClient.isHovering());
     }
 
+    private Field executingTaskEntriesField = null;
+
     private void renderAITasks() {
         if (dragonServer == null) {
             return;
@@ -294,10 +298,20 @@ public class GuiDragonDebug extends Gui {
         text.println("AI tasks");
         text.setColor(WHITE);
 
-        for (EntityAITasks.EntityAITaskEntry taskEntry : dragonServer.tasks.taskEntries) {
-            if (taskEntry.using) {
-                text.println("" + taskEntry.action.getClass().getSimpleName());
+
+        try {
+            if(executingTaskEntriesField == null) {
+                executingTaskEntriesField = EntityAITasks.class.getDeclaredField("executingTaskEntries");
             }
+            executingTaskEntriesField.setAccessible(true);
+            Set<EntityAITasks.EntityAITaskEntry> executingTaskEntries = (Set<EntityAITasks.EntityAITaskEntry>) executingTaskEntriesField.get(dragonServer.tasks);
+            executingTaskEntriesField.setAccessible(false);
+            if(executingTaskEntries!=null) {
+                for (EntityAITasks.EntityAITaskEntry taskEntry : executingTaskEntries) {
+                    text.println("" + taskEntry.action.getClass().getSimpleName());
+                }
+            }
+        } catch (NoSuchFieldException | IllegalAccessException e) {
         }
     }
 

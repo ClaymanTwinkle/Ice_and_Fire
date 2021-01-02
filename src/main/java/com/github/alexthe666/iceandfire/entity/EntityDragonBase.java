@@ -864,6 +864,9 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
         if (!world.isRemote) {
             this.isSleeping = sleeping;
         }
+        if(!sleeping) {
+            sleepProgress = 0;
+        }
     }
 
     public boolean isBlinking() {
@@ -954,11 +957,15 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
     }
 
     public boolean canMove() {
-        StoneEntityProperties properties = EntityPropertiesHandler.INSTANCE.getProperties(this, StoneEntityProperties.class);
-        if (properties != null && properties.isStone) {
+        if (isStone()) {
             return false;
         }
         return !this.isSitting() && !this.isSleeping() && this.getControllingPassenger() == null && !this.isModelDead() && sleepProgress == 0 && this.getAnimation() != ANIMATION_SHAKEPREY;
+    }
+
+    public boolean isStone() {
+        StoneEntityProperties properties = EntityPropertiesHandler.INSTANCE.getProperties(this, StoneEntityProperties.class);
+        return properties != null && properties.isStone;
     }
 
     @Override
@@ -973,7 +980,7 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
             return true;
         }
         if (this.isModelDead() && this.getDeathStage() < lastDeathStage && player.capabilities.allowEdit) {
-            if (!world.isRemote && !stack.isEmpty() && stack.getItem() != null && stack.getItem() == Items.GLASS_BOTTLE && this.getDeathStage() < lastDeathStage / 2 && IceAndFire.CONFIG.dragonDropBlood) {
+            if (!world.isRemote && !stack.isEmpty() && stack.getItem() == Items.GLASS_BOTTLE && this.getDeathStage() < lastDeathStage / 2 && IceAndFire.CONFIG.dragonDropBlood) {
                 if (!player.capabilities.isCreativeMode) {
                     stack.shrink(1);
                 }
@@ -1326,8 +1333,7 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
     }
 
     public boolean doesWantToLand() {
-        StoneEntityProperties properties = EntityPropertiesHandler.INSTANCE.getProperties(this, StoneEntityProperties.class);
-        return this.flyTicks > 6000 || down() || flyTicks > 40 && this.flyProgress == 0 || properties != null && properties.isStone || this.isChained() && flyTicks > 100 || this.airAttack == IafDragonAttacks.Air.TACKLE && this.getAttackTarget() != null;
+        return this.flyTicks > 6000 || down() || flyTicks > 40 && this.flyProgress == 0 || isStone() || this.isChained() && flyTicks > 100 || this.airAttack == IafDragonAttacks.Air.TACKLE && this.getAttackTarget() != null;
     }
 
     public abstract String getVariantName(int variant);
@@ -2050,6 +2056,9 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
     public void setAttackTarget(@Nullable EntityLivingBase entitylivingbaseIn) {
         super.setAttackTarget(entitylivingbaseIn);
         this.flightManager.onSetAttackTarget(entitylivingbaseIn);
+        if(entitylivingbaseIn != null) {
+            setSleeping(false);
+        }
     }
 
     public boolean isPart(Entity entityHit) {

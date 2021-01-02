@@ -94,8 +94,7 @@ public class EntityBlackFrostDragon extends EntityIceDragon implements IDreadMob
     }
 
     public boolean canMove() {
-        StoneEntityProperties properties = EntityPropertiesHandler.INSTANCE.getProperties(this, StoneEntityProperties.class);
-        if (properties != null && properties.isStone) {
+        if (isStone()) {
             return false;
         }
         return !this.isSitting() && !this.isSleeping() && !this.isModelDead() && sleepProgress == 0 && this.getAnimation() != ANIMATION_SHAKEPREY;
