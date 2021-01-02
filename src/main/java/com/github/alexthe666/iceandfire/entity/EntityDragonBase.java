@@ -3,6 +3,7 @@ package com.github.alexthe666.iceandfire.entity;
 import com.github.alexthe666.iceandfire.IceAndFire;
 import com.github.alexthe666.iceandfire.api.FoodUtils;
 import com.github.alexthe666.iceandfire.api.event.GenericGriefEvent;
+import com.github.alexthe666.iceandfire.client.gui.GuiDragonDebug;
 import com.github.alexthe666.iceandfire.client.model.IFChainBuffer;
 import com.github.alexthe666.iceandfire.client.model.util.LegSolverQuadruped;
 import com.github.alexthe666.iceandfire.item.IafItemRegistry;
@@ -176,7 +177,7 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
     private boolean isModelDead;
     private int animationTick;
     private Animation currentAnimation;
-    private float lastScale;
+    public float lastScale;
     private EntityDragonPart headPart;
     private EntityDragonPart neckPart;
     private EntityDragonPart rightWingUpperPart;
@@ -910,6 +911,9 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
         } else {
             this.dataManager.set(TAMED, Byte.valueOf((byte) (b0 & -2)));
         }
+        if (aiSit != null) {
+            this.aiSit.setSitting(sitting);
+        }
     }
 
     public void riderShootFire(Entity controller) {
@@ -965,7 +969,7 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
         }
         int lastDeathStage = this.getAgeInDays() / 5;
         if (stack.getItem() == IafItemRegistry.dragon_debug_stick) {
-            logic.debug();
+            GuiDragonDebug.INSTANCE.setupDragon(this);
             return true;
         }
         if (this.isModelDead() && this.getDeathStage() < lastDeathStage && player.capabilities.allowEdit) {
