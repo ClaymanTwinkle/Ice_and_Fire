@@ -41,10 +41,8 @@ public class DragonAIMate extends EntityAIBase {
         }
     }
 
-    /**
-     * Returns whether an in-progress EntityAIBase should continue executing
-     */
-    public boolean continueExecuting() {
+    @Override
+    public boolean shouldContinueExecuting() {
         return this.targetMate.isEntityAlive() && this.targetMate.isInLove() && this.spawnBabyDelay < 60;
     }
 

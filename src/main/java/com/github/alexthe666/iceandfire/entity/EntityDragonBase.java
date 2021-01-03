@@ -1160,7 +1160,7 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
                 }
             }
         }
-        return super.processInteract(player, hand);
+        return false;
 
     }
 
@@ -1667,9 +1667,13 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
 
     @Override
     public boolean canMateWith(EntityAnimal otherAnimal) {
-        if (otherAnimal instanceof EntityDragonBase && otherAnimal != this && otherAnimal.getClass() == this.getClass()) {
-            EntityDragonBase dragon = (EntityDragonBase) otherAnimal;
-            return this.isMale() && !dragon.isMale() || !this.isMale() && dragon.isMale();
+        if(isAdult()) {
+            if (otherAnimal instanceof EntityDragonBase && otherAnimal != this && otherAnimal.getClass() == this.getClass()) {
+                EntityDragonBase dragon = (EntityDragonBase) otherAnimal;
+                if (dragon.isAdult()) {
+                    return (this.isMale() && !dragon.isMale() || !this.isMale() && dragon.isMale()) && dragon.isInLove() && isInLove();
+                }
+            }
         }
         return false;
     }
