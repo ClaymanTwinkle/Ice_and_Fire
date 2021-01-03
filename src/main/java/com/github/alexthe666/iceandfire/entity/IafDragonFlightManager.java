@@ -73,12 +73,12 @@ public class IafDragonFlightManager {
                 }
             }
 
-        } else if (target == null || dragon.getDistance(target.x, target.y, target.z) < 2 || !dragon.world.isAirBlock(new BlockPos(target)) && (dragon.isHovering() || dragon.isFlying()) || dragon.getCommand() == 2 && dragon.shouldTPtoOwner()) {
+        } else if (target == null || dragon.getDistance(target.x, target.y, target.z) < 2 || !dragon.world.isAirBlock(new BlockPos(target)) && (dragon.isHovering() || dragon.isFlying()) || dragon.getCommand() == EntityDragonBase.COMMAND_ESCORT && dragon.shouldTPtoOwner()) {
             BlockPos viewBlock = DragonUtils.getBlockInView(dragon);
             if (dragon instanceof EntityIceDragon && !(dragon.isHovering() || dragon.isFlying())) {
                 viewBlock = DragonUtils.getWaterBlockInView(dragon);
             }
-            if (dragon.getCommand() == 2 && dragon.isFlying()) {
+            if (dragon.getCommand() == EntityDragonBase.COMMAND_ESCORT && dragon.isFlying()) {
                 viewBlock = DragonUtils.getBlockInViewEscort(dragon);
             }
             if (viewBlock != null) {

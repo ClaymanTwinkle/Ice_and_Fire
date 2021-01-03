@@ -101,6 +101,12 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
     public static Animation ANIMATION_ROAR;
     public static Animation ANIMATION_EPIC_ROAR;
     public static Animation ANIMATION_TAILWHACK;
+
+    public static final int COMMAND_STAND = 0;
+    public static final int COMMAND_SIT = 1;
+    public static final int COMMAND_ESCORT = 2;
+    public static final int MAX_COMMAND_INDEX = COMMAND_ESCORT;
+
     public DragonType dragonType;
     public double minimumDamage;
     public double maximumDamage;
@@ -571,7 +577,7 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
 
     public void setCommand(int command) {
         this.dataManager.set(COMMAND, Integer.valueOf(command));
-        if (command == 1) {
+        if (command == COMMAND_SIT) {
             this.setSitting(true);
         } else {
             this.setSitting(false);
@@ -1137,14 +1143,14 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
                         } else {
                             this.playSound(SoundEvents.ENTITY_ZOMBIE_INFECT, this.getSoundVolume(), this.getSoundPitch());
                             this.setCommand(this.getCommand() + 1);
-                            if (this.getCommand() > 2) {
-                                this.setCommand(0);
+                            if (this.getCommand() > MAX_COMMAND_INDEX) {
+                                this.setCommand(COMMAND_STAND);
                             }
                             String commandText = "stand";
-                            if (this.getCommand() == 1) {
+                            if (this.getCommand() == COMMAND_SIT) {
                                 commandText = "sit";
                             }
-                            if (this.getCommand() == 2) {
+                            if (this.getCommand() == COMMAND_ESCORT) {
                                 commandText = "escort";
                             }
                             player.sendStatusMessage(new TextComponentTranslation("dragon.command." + commandText), true);

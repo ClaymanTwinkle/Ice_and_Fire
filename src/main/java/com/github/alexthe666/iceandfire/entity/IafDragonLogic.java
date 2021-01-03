@@ -135,10 +135,10 @@ public class IafDragonLogic {
             dragon.blockBreakCounter = IceAndFire.CONFIG.dragonBreakBlockCooldown;
         }
         dragon.updateBurnTarget();
-        if (dragon.isSitting() && (dragon.getCommand() != 1 || dragon.getControllingPassenger() != null)) {
+        if (dragon.isSitting() && (dragon.getCommand() != EntityDragonBase.COMMAND_SIT || dragon.getControllingPassenger() != null)) {
             dragon.setSitting(false);
         }
-        if (!dragon.isSitting() && dragon.getCommand() == 1 && dragon.getControllingPassenger() == null) {
+        if (!dragon.isSitting() && dragon.getCommand() == EntityDragonBase.COMMAND_SIT && dragon.getControllingPassenger() == null) {
             dragon.setSitting(true);
         }
         if (dragon.isSitting()) {
