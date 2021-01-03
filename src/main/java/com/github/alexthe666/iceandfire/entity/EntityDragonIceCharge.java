@@ -149,7 +149,7 @@ public class EntityDragonIceCharge extends EntityFireball implements IDragonProj
                         //((EntityPlayer) movingObject.entityHit).addStat(ModAchievements.dragonKill, 1);
                     }
                     this.applyEnchantments(shootingEntity, movingObject.entityHit);
-                    if (shootingEntity instanceof EntityDragonBase) {
+                    if (shootingEntity instanceof EntityDragonBase && DragonUtils.isDragonGriefing((EntityDragonBase) shootingEntity)) {
                         IafDragonDestructionManager.destroyAreaIceCharge(world, new BlockPos(posX, posY, posZ), ((EntityDragonBase) shootingEntity));
                     }
                     this.setDead();

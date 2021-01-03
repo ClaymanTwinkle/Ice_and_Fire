@@ -138,7 +138,7 @@ public class EntityDragonFireCharge extends EntityFireball implements IDragonPro
                     }
                     movingObject.entityHit.setFire(5);
                     this.applyEnchantments(shootingEntity, movingObject.entityHit);
-                    if (shootingEntity instanceof EntityDragonBase) {
+                    if (shootingEntity instanceof EntityDragonBase && DragonUtils.isDragonGriefing((EntityDragonBase) shootingEntity)) {
                         IafDragonDestructionManager.destroyAreaFireCharge(world, new BlockPos(posX, posY, posZ), ((EntityDragonBase) shootingEntity));
                     }
                     this.setDead();
