@@ -234,7 +234,7 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
         this.tasks.addTask(2, this.aiSit = new EntityAISit(this));
         this.tasks.addTask(3, new DragonAIEscort(this, 1.5D));
         this.tasks.addTask(4, new DragonAIAttackMelee(this, 1.5D, false));
-        this.tasks.addTask(5, new AquaticAITempt(this, 1.0D, IafItemRegistry.fire_stew, false));
+        this.tasks.addTask(5, new AquaticAITempt(this, 1.0D, getTemptItem(), false));
         this.tasks.addTask(6, new DragonAIWander(this, 1.0D));
         this.tasks.addTask(7, new DragonAIWatchClosest(this, EntityLivingBase.class, 6.0F));
         this.tasks.addTask(7, new DragonAILookIdle(this));
@@ -405,6 +405,8 @@ public abstract class EntityDragonBase extends EntityTameable implements ISyncMo
             playerEntity.openGui(IceAndFire.INSTANCE, 0, this.world, this.getEntityId(), 0, 0);
         }
     }
+
+    protected abstract Item getTemptItem();
 
     public int getTalkInterval() {
         return 90;

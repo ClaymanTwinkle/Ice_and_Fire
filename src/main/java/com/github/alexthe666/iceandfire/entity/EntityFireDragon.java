@@ -63,6 +63,11 @@ public class EntityFireDragon extends EntityDragonBase {
         this.tasks.addTask(0, new EntityAISwimming(this));
     }
 
+    @Override
+    protected Item getTemptItem() {
+        return IafItemRegistry.fire_stew;
+    }
+
     public String getVariantName(int variant) {
         switch (variant) {
             default:

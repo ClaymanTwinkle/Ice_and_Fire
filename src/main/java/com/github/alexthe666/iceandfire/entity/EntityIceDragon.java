@@ -68,6 +68,11 @@ public class EntityIceDragon extends EntityDragonBase {
         this.dataManager.register(SWIMMING, Boolean.valueOf(false));
     }
 
+    @Override
+    protected Item getTemptItem() {
+        return IafItemRegistry.frost_stew;
+    }
+
     public String getVariantName(int variant) {
         switch (variant) {
             default:
